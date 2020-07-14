@@ -1,0 +1,35 @@
+:root {
+  --background-color: hsl(0, 0%, 100%);
+  --text-color: hsl(0, 0%, 25%);
+  --green: hsl(130, 45%, 30%);
+  --red: hsl(5, 50%, 35%);
+  --link-color: hsl(200, 50%, 35%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: hsl(180, 5%, 15%);
+    --text-color: hsl(0, 0%, 80%);
+    --green: hsl(130, 40%, 50%);
+    --red: hsl(5, 40%, 50%);
+    --link-color: hsl(200, 50%, 60%);
+  }
+}
+
+html {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+thead {
+  font-weight: bold;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

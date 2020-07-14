@@ -1,0 +1,3 @@
+baseURL = "https://calinou.github.io/godot-proposals-viewer/"
+languageCode = "en-us"
+title = "Godot Proposals Viewer"

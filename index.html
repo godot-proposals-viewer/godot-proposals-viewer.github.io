@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Godot Engine">
+    <meta name="description" content="View the current Godot proposals in a convenient way.">
+    <meta name="theme-color" content="#3d8fcc">
+    <title>Godot proposals viewer</title>
+    <link rel="icon" href="favicon.png">
+    <link rel="stylesheet" href="css/main.css">
+    <script defer src="js/ky.umd.min.js"></script>
+    <script defer src="js/alpine.min.js"></script>
+  </head>
+  <body>
+    <table x-data="table()" x-init="loadProposals" style="max-width: 1200px; margin: 0 auto">
+      <thead>
+        <tr>
+          <td>Title</td>
+          <td>Score</td>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="proposal in proposals" :key="proposal.id">
+          <tr>
+            <td>
+              <span
+                style="display: inline-block; min-width: 55px; margin-right: 5px; text-align: right; opacity: 0.5"
+                x-text="`#${proposal.number}`"
+              ></span>
+              <a :href="proposal.html_url" x-text="proposal.title"></a>
+            </td>
+            <td style="min-width: 200px;">
+              <span x-text="`+${proposal.reactions['+1']}`" style="color: var(--green)"></span>
+              <span x-text="`-${proposal.reactions['-1']}`" style="color: var(--red)"></span>
+              <meter
+                min="0"
+                :value="proposal.reactions['+1']"
+                :max="proposal.reactions['+1'] + proposal.reactions['-1']"
+                :style="`opacity: ${proposal.reactions['+1'] * 10}%`"
+              ></meter>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+
+    <script>
+      function table() {
+        return {
+          proposals: [],
+          prop: {},
+
+          async loadProposals() {
+            for (let i = 1; i <= 10; i += 1) {
+              const json = await ky.get(`proposals/${i}.json`).json();
+              const self = this;
+              json.forEach((proposal) => {
+                self.proposals.push(proposal);
+              });
+            }
+
+            this.proposals = this.proposals.sort((a, b) => {
+              // Sort by number of reactions.
+              return a.reactions["+1"] < b.reactions["+1"] ? 1 : -1;
+            });
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
