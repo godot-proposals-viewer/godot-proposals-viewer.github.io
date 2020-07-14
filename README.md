@@ -16,4 +16,4 @@ Follow these instructions to set up this site locally for development purposes:
 Copyright © 2020 Hugo Locurcio and contributors
 
 Unless otherwise specified, files in this repository are licensed under the
-MIT license. See [LICENSE.txt](LICENSE.txt) for more information.
+MIT license. See [LICENSE.md](LICENSE.md) for more information.
