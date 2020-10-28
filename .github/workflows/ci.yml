@@ -13,6 +13,10 @@ jobs:
       - name: Fetch list of proposals
         run: |
           ./build.sh
+          # Deploy all the files we need in the generated site to the `dist/` folder.
+          mkdir -p dist/
+          cp -r css/ thirdparty/ proposals/ .nojekyll index.html favicon.png dist/
+          ls -la dist/*
 
       - name: Deploy to GitHub Pages 🚀
         uses: JamesIves/github-pages-deploy-action@releases/v3
@@ -21,6 +25,6 @@ jobs:
           # The branch the action should deploy to.
           BRANCH: gh-pages
           # The folder the action should deploy.
-          FOLDER: .
+          FOLDER: dist
           # Artifacts are large, don't keep the branch's history
           SINGLE_COMMIT: true
