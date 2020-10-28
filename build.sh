@@ -12,7 +12,7 @@ for i in {1..13}; do
   curl -fSs \
       -H "Accept: application/vnd.github.squirrel-girl-preview" \
       "https://api.github.com/repos/godotengine/godot-proposals/issues?state=open&per_page=100&page=$i" \
-      > "proposals/$i.json" &
+      > "proposals/$i.json"
 done
 
 echo "Done."
