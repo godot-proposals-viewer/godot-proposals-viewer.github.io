@@ -34,6 +34,10 @@ thead {
   font-weight: bold;
 }
 
+tr:nth-child(even) {
+  background-color: hsla(0, 0%, 50%, 0.1);
+}
+
 a {
   color: var(--link-color);
   text-decoration: none;
