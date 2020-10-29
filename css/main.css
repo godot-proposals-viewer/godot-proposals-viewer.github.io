@@ -22,8 +22,11 @@ html {
 }
 
 body {
-    /* Use a modern font stack inspired by Bootstrap 4. */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  padding: 0 0.5rem;
+  /* Use a modern font stack inspired by Bootstrap 4. */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 thead {
