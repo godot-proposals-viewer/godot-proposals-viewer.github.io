@@ -1,6 +1,11 @@
 
 name: Continuous integration
-on: push
+on:
+  push:
+  schedule:
+    # Every day at midnight (UTC).
+    # This keeps the list of proposals fresh.
+    - cron: '0 0 * * *'
 
 jobs:
   deploy:
