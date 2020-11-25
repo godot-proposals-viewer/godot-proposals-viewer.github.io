@@ -3,6 +3,7 @@
   --text-color: hsl(0, 0%, 25%);
   --green: hsl(130, 45%, 30%);
   --red: hsl(5, 50%, 35%);
+  --gray: hsl(0, 0%, 50%);
   --link-color: hsl(200, 50%, 35%);
 }
 
@@ -12,6 +13,7 @@
     --text-color: hsl(0, 0%, 80%);
     --green: hsl(130, 40%, 50%);
     --red: hsl(5, 40%, 50%);
+    --gray: hsl(0, 0%, 55%);
     --link-color: hsl(200, 50%, 60%);
   }
 }

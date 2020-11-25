@@ -31,7 +31,7 @@
           <tr>
             <td>
               <span
-                style="display: inline-block; min-width: 55px; margin-right: 5px; text-align: right; opacity: 0.5"
+                style="display: inline-block; min-width: 55px; margin-right: 5px; text-align: right; color: var(--gray)"
                 x-text="`#${proposal.number}`"
               ></span>
               <a :href="proposal.html_url" x-text="proposal.title"></a>
@@ -46,6 +46,7 @@
                 :max="proposal.reactions['+1'] + proposal.reactions['-1']"
                 :style="`opacity: ${proposal.reactions['+1'] * 7.5}%`"
               ></meter>
+              <span x-text="`💬 ${proposal.comments}`" style="color: var(--gray)"></span>
             </td>
           </tr>
         </template>
