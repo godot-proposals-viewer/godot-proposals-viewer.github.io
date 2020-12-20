@@ -22,7 +22,11 @@
     <table x-data="table()" x-init="loadProposals()">
       <thead>
         <tr>
-          <td>Title</td>
+          <!--
+            Align the Title header to the actual issue title, since the leftmost
+            part is reserved to the issue ID.
+          -->
+          <td style="padding-left: 4.0625rem">Title</td>
           <td>Score</td>
         </tr>
       </thead>
