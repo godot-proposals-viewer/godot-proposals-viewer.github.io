@@ -4,7 +4,7 @@
   --green: hsl(130, 45%, 30%);
   --red: hsl(5, 50%, 35%);
   --gray: hsl(0, 0%, 50%);
-  --link-color: hsl(200, 50%, 35%);
+  --link-color: hsl(210, 90%, 50%);
 }
 
 @media (prefers-color-scheme: dark) {
