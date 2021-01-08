@@ -5,6 +5,7 @@
   --red: hsl(5, 50%, 35%);
   --gray: hsl(0, 0%, 50%);
   --link-color: hsl(210, 90%, 50%);
+  --link-underline-color: hsla(210, 90%, 50%, 0.3);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,7 +16,16 @@
     --red: hsl(5, 50%, 55%);
     --gray: hsl(0, 0%, 55%);
     --link-color: hsl(200, 50%, 60%);
+    --link-underline-color: hsla(200, 50%, 60%, 0.3);
   }
+}
+
+*:focus {
+  /* More visible outline for better keyboard navigation. */
+  outline: 0.125rem solid hsl(220, 100%, 62.5%);
+  /* Make the outline always appear above other elements. */
+  /* Otherwise, one of its sides can be hidden by tabs in the Download and More layouts. */
+  position: relative;
 }
 
 html {
@@ -36,15 +46,28 @@ thead {
   font-weight: bold;
 }
 
+tr:hover {
+  background-color: hsla(0, 0%, 50%, 0.075);
+}
+
 tr:nth-child(even) {
   background-color: hsla(0, 0%, 50%, 0.1);
 }
 
+tr:nth-child(even):hover {
+  background-color: hsla(0, 0%, 50%, 0.175);
+}
+
 a {
   color: var(--link-color);
-  text-decoration: none;
+  text-decoration-color: var(--link-underline-color);
+  text-decoration-thickness: 0.125rem;
 }
 
 a:hover {
-  text-decoration: underline;
+  filter: brightness(117.5%);
+}
+
+a:active {
+  filter: brightness(82.5%);
 }
