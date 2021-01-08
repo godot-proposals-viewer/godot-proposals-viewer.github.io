@@ -16,7 +16,7 @@
     <h1 style="text-align: center">Godot proposals viewer</h1>
     <p>
       This page lists all open <a href="https://github.com/godotengine/godot-proposals">Godot proposals</a>
-      sorted by popularity (number of +1 reactions).
+      sorted by popularity (highest number of +1 reactions, then lowest number of -1 reactions, then highest number of comments).
     </p>
     <p><a href="https://github.com/Calinou/godot-proposals-viewer">Contribute to this proposal viewer on GitHub!</a></p>
     <table x-data="table()" x-init="loadProposals()">
@@ -74,14 +74,21 @@
 
             this.proposals = this.proposals.sort((a, b) => {
               // Sort by number of +1 reactions (descending) *then* -1 reactions
-              // (ascending). This means that if several proposals have the same
-              // number of +1 reactions, those with less -1 reactions will be
-              // placed at the top.
+              // (ascending) *then* number of comments (descending).
+              // This means that if several proposals have the same number of +1
+              // reactions, those with less -1 reactions will be placed at the
+              // top.
               if (a.reactions["+1"] < b.reactions["+1"]) {
                 return 1;
               } else if (a.reactions["+1"] === b.reactions["+1"]) {
                 if (a.reactions["-1"] > b.reactions["-1"]) {
                   return 1;
+                } else if (a.reactions["-1"] === b.reactions["-1"]) {
+                  if (a.comments < b.comments) {
+                    return 1;
+                  } else {
+                    return -1;
+                  }
                 } else {
                   return -1;
                 }
