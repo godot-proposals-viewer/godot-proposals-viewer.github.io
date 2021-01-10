@@ -20,8 +20,8 @@ keep the page up-to-date.
 Follow these instructions to set up this site locally for development purposes:
 
 - Run `build.sh` to fetch proposals from the GitHub API. It makes a few dozen
-  requests, requests, which means you don't need to set up API authentication to
-  bypass GitHub's 60 requests/hour limit.
+  requests, which means you don't need to set up API authentication to bypass
+  GitHub's 60 requests/hour limit.
 - Start a local web server in the root directory then browse `index.html`.
 
 ## License
