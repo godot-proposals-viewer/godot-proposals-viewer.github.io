@@ -6,6 +6,7 @@
   --gray: hsl(0, 0%, 50%);
   --link-color: hsl(210, 90%, 50%);
   --link-underline-color: hsla(210, 90%, 50%, 0.3);
+  --new-color: hsl(15, 90%, 50%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,6 +18,7 @@
     --gray: hsl(0, 0%, 55%);
     --link-color: hsl(200, 50%, 60%);
     --link-underline-color: hsla(200, 50%, 60%, 0.3);
+    --new-color: hsl(15, 70%, 60%);
   }
 }
 
