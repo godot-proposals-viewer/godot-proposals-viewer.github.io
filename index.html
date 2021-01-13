@@ -45,6 +45,7 @@
                 <td style="min-width: 200px;">
                   <span x-text="`+${proposal.reactions['+1']}`" style="color: var(--green)"></span>
                   <span x-text="`-${proposal.reactions['-1']}`" style="color: var(--red)"></span>
+
                   <!-- The bar is fully opaque with 14 +1 reactions or more. -->
                   <meter
                     min="0"
@@ -52,7 +53,12 @@
                     :max="proposal.reactions['+1'] + proposal.reactions['-1']"
                     :style="`opacity: ${proposal.reactions['+1'] * 7.5}%`"
                   ></meter>
-                  <span x-text="`💬 ${proposal.comments}`" style="color: var(--gray)"></span>
+
+                  <span
+                    x-show="proposal.comments >= 1"
+                    x-text="`💬 ${proposal.comments}`"
+                    :style="`opacity: ${(0.25 + proposal.comments / 40) * 100}%`"
+                  ></span>
                 </td>
               </tr>
             </template>
