@@ -19,49 +19,59 @@
       sorted by popularity (highest number of +1 reactions, then lowest number of -1 reactions, then highest number of comments).
     </p>
     <p><a href="https://github.com/Calinou/godot-proposals-viewer">Contribute to this proposal viewer on GitHub!</a></p>
-    <table x-data="table()" x-init="loadProposals()">
-      <thead>
-        <tr>
-          <!--
-            Align the Title header to the actual issue title, since the leftmost
-            part is reserved to the issue ID.
-          -->
-          <td style="padding-left: 4.0625rem">Title</td>
-          <td>Score</td>
-        </tr>
-      </thead>
-      <tbody>
-        <template x-for="proposal in proposals" :key="proposal.id">
-          <tr>
-            <td>
-              <span
-                style="display: inline-block; min-width: 55px; margin-right: 5px; text-align: right; color: var(--gray)"
-                x-text="`#${proposal.number}`"
-              ></span>
-              <a :href="proposal.html_url" x-text="proposal.title"></a>
-            </td>
-            <td style="min-width: 200px;">
-              <span x-text="`+${proposal.reactions['+1']}`" style="color: var(--green)"></span>
-              <span x-text="`-${proposal.reactions['-1']}`" style="color: var(--red)"></span>
-              <!-- The bar is fully opaque with 14 +1 reactions or more. -->
-              <meter
-                min="0"
-                :value="proposal.reactions['+1']"
-                :max="proposal.reactions['+1'] + proposal.reactions['-1']"
-                :style="`opacity: ${proposal.reactions['+1'] * 7.5}%`"
-              ></meter>
-              <span x-text="`💬 ${proposal.comments}`" style="color: var(--gray)"></span>
-            </td>
-          </tr>
-        </template>
-      </tbody>
-    </table>
+    <div x-data="table()" x-init="loadProposals()">
+      <template x-if="proposalsLoaded">
+        <table>
+          <thead>
+            <tr>
+              <!--
+                Align the Title header to the actual issue title, since the leftmost
+                part is reserved to the issue ID.
+              -->
+              <td style="padding-left: 4.0625rem">Title</td>
+              <td>Score</td>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="proposal in proposals" :key="proposal.id">
+              <tr>
+                <td>
+                  <span
+                    style="display: inline-block; min-width: 55px; margin-right: 5px; text-align: right; color: var(--gray)"
+                    x-text="`#${proposal.number}`"
+                  ></span>
+                  <a :href="proposal.html_url" x-text="proposal.title"></a>
+                </td>
+                <td style="min-width: 200px;">
+                  <span x-text="`+${proposal.reactions['+1']}`" style="color: var(--green)"></span>
+                  <span x-text="`-${proposal.reactions['-1']}`" style="color: var(--red)"></span>
+                  <!-- The bar is fully opaque with 14 +1 reactions or more. -->
+                  <meter
+                    min="0"
+                    :value="proposal.reactions['+1']"
+                    :max="proposal.reactions['+1'] + proposal.reactions['-1']"
+                    :style="`opacity: ${proposal.reactions['+1'] * 7.5}%`"
+                  ></meter>
+                  <span x-text="`💬 ${proposal.comments}`" style="color: var(--gray)"></span>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </template>
+      <template x-if="!proposalsLoaded">
+        <!-- The loading placeholder height matches the current height of the table on desktop as of 2021-11-13. -->
+        <p style="text-align: center; height: 43000px; padding-top: 1.5rem; margin-top: 3rem; background-color: hsla(0, 0%, 50%, 0.1)">
+          Loading proposal list...
+        </p>
+      </template>
+    </div>
 
     <script>
       function table() {
         return {
           proposals: [],
-          prop: {},
+          proposalsLoaded: false,
 
           async loadProposals() {
             for (let i = 1; i <= 15; i += 1) {
@@ -96,6 +106,8 @@
                 return -1;
               }
             });
+
+            this.proposalsLoaded = true;
           }
         }
       }
