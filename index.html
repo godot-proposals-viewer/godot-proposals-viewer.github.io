@@ -45,7 +45,11 @@
                     x-text="Math.floor(Date.parse(proposal.created_at) / 1000) > Math.floor(Date.now() / 1000) - 1209600 ? 'new' : ''"
                     style="font-weight: 700; color: var(--new-color)"
                   ></span>
-                  <a :href="proposal.html_url" x-text="proposal.title"></a>
+                  <a
+                    :href="proposal.html_url"
+                    x-text="proposal.title"
+                    :title="`#${proposal.number}&#10;Opened by ${proposal.user.login} ${Math.floor((Math.floor(Date.now() / 1000) - Math.floor(Date.parse(proposal.created_at) / 1000)) / 86400)} days ago`"
+                  ></a>
                 </td>
                 <td style="min-width: 200px;">
                   <span x-text="`+${proposal.reactions['+1']}`" style="color: var(--green)"></span>
