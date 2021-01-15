@@ -89,14 +89,7 @@
           proposalsLoaded: false,
 
           async loadProposals() {
-            for (let i = 1; i <= 15; i += 1) {
-              const json = await ky.get(`proposals/${i}.json`).json();
-              const self = this;
-              json.forEach((proposal) => {
-                self.proposals.push(proposal);
-              });
-            }
-
+            this.proposals = await ky.get('proposals.json').json();
             this.proposals = this.proposals.sort((a, b) => {
               // Sort by number of +1 reactions (descending) *then* -1 reactions
               // (ascending) *then* number of comments (descending).
