@@ -7,11 +7,6 @@ import requests
 from typing import List, Dict
 from typing_extensions import Final
 
-# 1 page fetches 100 proposals. Remember to increment the number below periodically
-# to match the number of currently open proposals on
-# https://github.com/godotengine/godot-proposals/issues.
-NUM_PAGES: Final = 15
-
 
 def main() -> None:
     # Change to the directory where the script is located,
@@ -22,12 +17,28 @@ def main() -> None:
 
     all_proposals: List[Dict] = []
 
-    for page in range(1, NUM_PAGES + 1):
-        print(f"    Requesting batch of proposals {page}/{NUM_PAGES}...")
+    page = 1
+    # We'll set the number of pages to a "finite" number once we make a request.
+    num_pages = 10000
+
+    while page <= num_pages:
+        if num_pages == 10000:
+            print(f"    Requesting batch of proposals {page}...")
+        else:
+            print(f"    Requesting batch of proposals {page}/{num_pages}...")
         request = requests.get(
             f"https://api.github.com/repos/godotengine/godot-proposals/issues?state=open&per_page=100&page={page}",
             headers={"Accept": "application/vnd.github.squirrel-girl-preview"},
         )
+
+        if num_pages == 10000:
+            # We don't know the number of pages yet, so figure it out.
+            links_in_header = request.headers["Link"].split(",")
+            for link in links_in_header:
+                if '"last"' in link:
+                    # Get the page number after the `page` query parameter.
+                    num_pages = int(link.split("&page")[1][1:3])
+
         request_dict = json.loads(request.text)
 
         for proposal in request_dict:
@@ -47,6 +58,8 @@ def main() -> None:
                     },
                 }
             )
+
+        page += 1
 
     print("[*] Saving proposals.json...")
 
