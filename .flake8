@@ -1,0 +1,3 @@
+[flake8]
+# Black is used for formatting, ignore Flake8's line length limits.
+extend-ignore = E501

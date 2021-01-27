@@ -2,10 +2,9 @@
 
 import json
 import os
+from typing import Any, Dict, List
 
 import requests
-from typing import List, Dict
-from typing_extensions import Final
 
 
 def main() -> None:
@@ -15,7 +14,7 @@ def main() -> None:
 
     print("[*] Fetching proposal JSON pages...")
 
-    all_proposals: List[Dict] = []
+    all_proposals: List[Dict[str, Any]] = []
 
     page = 1
     # We'll set the number of pages to a "finite" number once we make a request.
