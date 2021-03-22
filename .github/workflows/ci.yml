@@ -24,6 +24,12 @@ jobs:
           cp -r css/ thirdparty/ proposals.json .nojekyll index.html favicon.png dist/
           ls -la dist/*
 
+      - name: Minify files
+        run: |
+          curl -fsSLO https://github.com/tdewolff/minify/releases/download/v2.9.15/minify_linux_amd64.tar.gz
+          tar xf minify_linux_amd64.tar.gz minify
+          ./minify --recursive dist --output .
+
       - name: Deploy to GitHub Pages 🚀
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
