@@ -52,8 +52,14 @@
                   ></a>
                 </td>
                 <td style="min-width: 200px;">
-                  <span x-text="`+${proposal.reactions['+1']}`" style="color: var(--green)"></span>
-                  <span x-text="`-${proposal.reactions['-1']}`" style="color: var(--red)"></span>
+                  <span x-text="`+${proposal.reactions['+1']}`" :style="`
+                    color: var(--green);
+                    font-weight: ${proposal.reactions['+1'] >= 30 ? '700' : '400'};
+                  `"></span>
+                  <span x-text="`-${proposal.reactions['-1']}`" :style="`
+                    color: var(--red);
+                    font-weight: ${proposal.reactions['-1'] >= 5 ? '700' : '400'};
+                  `"></span>
 
                   <!-- The bar is fully opaque with 14 +1 reactions or more. -->
                   <meter
