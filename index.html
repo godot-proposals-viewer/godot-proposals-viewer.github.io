@@ -105,6 +105,7 @@
                   <span x-text="`-${proposal.reactions['-1']}`" :style="`
                     color: var(--red);
                     font-weight: ${proposal.reactions['-1'] >= 5 ? '700' : '400'};
+                    margin-left: 0.25rem;
                   `"></span>
 
                   <!-- The bar is fully opaque with 14 +1 reactions or more. -->
@@ -112,7 +113,7 @@
                     min="0"
                     :value="proposal.reactions['+1']"
                     :max="proposal.reactions['+1'] + proposal.reactions['-1']"
-                    :style="`opacity: ${proposal.reactions['+1'] * 7.5}%`"
+                    :style="`opacity: ${proposal.reactions['+1'] * 7.5}%; margin-left: 0.25rem;`"
                   ></meter>
 
                   <span
