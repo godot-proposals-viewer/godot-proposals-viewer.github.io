@@ -73,3 +73,8 @@ a:hover {
 a:active {
   filter: brightness(82.5%);
 }
+
+code {
+  background-color: hsla(0, 0%, 60%, 0.2);
+  padding: 0.125rem;
+}

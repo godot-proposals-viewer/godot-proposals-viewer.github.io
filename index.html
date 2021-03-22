@@ -47,7 +47,7 @@
                   ></span>
                   <a
                     :href="proposal.html_url"
-                    x-text="proposal.title"
+                    x-html="formatProposalTitle(proposal.title)"
                     :title="`#${proposal.number}&#10;Opened by ${proposal.user.login} ${Math.floor((Math.floor(Date.now() / 1000) - Math.floor(Date.parse(proposal.created_at) / 1000)) / 86400)} days ago`"
                   ></a>
                 </td>
@@ -116,7 +116,39 @@
             });
 
             this.proposalsLoaded = true;
-          }
+          },
+
+          /**
+           * Formats a proposal title to use HTML tags where appropriate.
+           * @param string title The proposal's title.
+           * @returns string The proposal title with HTML `<code>` tags instead of backticks.
+           */
+          formatProposalTitle(title) {
+            // Escape HTML.
+            const titleEscaped = title
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+              .replace(/"/g, "&quot;")
+              .replace(/'/g, "&#039;");
+
+            if (titleEscaped.includes("`")) {
+              let isInCodeTag = false;
+              return Array.prototype.map.call(titleEscaped, (character) => {
+                if (character === "`") {
+                  if (isInCodeTag) {
+                    isInCodeTag = false;
+                    return "</code>";
+                  }
+                  isInCodeTag = true;
+                  return "<code>";
+                }
+                return character;
+              }).join('');
+            } else {
+              return titleEscaped;
+            }
+          },
         }
       }
     </script>
