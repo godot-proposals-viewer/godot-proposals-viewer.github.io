@@ -60,6 +60,11 @@ tr:nth-child(even):hover {
   background-color: hsla(0, 0%, 50%, 0.175);
 }
 
+/* Make proposal titles always take up as much width as they can. */
+td:nth-child(1) {
+  width: 100%;
+}
+
 a {
   color: var(--link-color);
   text-decoration-color: var(--link-underline-color);

@@ -51,6 +51,7 @@ def main() -> None:
                     "html_url": proposal["html_url"],
                     "user": {"login": proposal["user"]["login"]},
                     "comments": proposal["comments"],
+                    "labels": [label["name"] for label in proposal["labels"]],
                     "reactions": {
                         "+1": proposal["reactions"]["+1"],
                         "-1": proposal["reactions"]["-1"],

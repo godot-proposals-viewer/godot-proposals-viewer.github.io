@@ -21,6 +21,52 @@
     <p><a href="https://github.com/Calinou/godot-proposals-viewer">Contribute to this proposal viewer on GitHub!</a></p>
     <div x-data="table()" x-init="loadProposals()">
       <template x-if="proposalsLoaded">
+
+        <!-- Attract user attention if filter has been changed from the default (All proposals). -->
+        <span :style="`font-weight: ${labelFilter === '' ? 400 : 700}`">Filter:</span>
+        <select x-model="labelFilter">
+          <option value="" title="Proposals not related to Godot itself">All proposals</option>
+          <option value="meta" title="Proposals not related to Godot itself">Meta proposals</option>
+          <optgroup label="Topic">
+            <option value="topic:animation">Animation</option>
+            <option value="topic:assetlib">Asset library</option>
+            <option value="topic:audio">Audio</option>
+            <option value="topic:buildsystem">Build system</option>
+            <option value="topic:codestyle">Code style</option>
+            <option value="topic:core">Core</option>
+            <option value="topic:docs">Documentation</option>
+            <option value="topic:editor">Editor</option>
+            <option value="topic:gdnative">GDNative</option>
+            <option value="topic:gdscript">GDScript</option>
+            <option value="topic:gui" title="Graphical User Interface">GUI</option>
+            <option value="topic:import" title="Resource importing system and asset pipeline">Import</option>
+            <option value="topic:input">Input</option>
+            <option value="topic:mono">Mono (C#)</option>
+            <option value="topic:navigation">Navigation</option>
+            <option value="topic:network">Network</option>
+            <option value="topic:physics">Physics</option>
+            <option value="topic:plugin" title="Editor plugins">Plugin</option>
+            <option value="topic:porting">Porting</option>
+            <option value="topic:rendering">Rendering</option>
+            <option value="topic:shaders" title="Godot shader language">Shaders</option>
+            <option value="topic:tests" title="Unit testing / integration testing">Tests</option>
+            <option value="topic:visualscript">VisualScript</option>
+            <option value="topic:xr">XR</option>
+            <option value="topic:2d" title="Any proposal related to 2D">2D</option>
+            <option value="topic:3d" title="Any proposal related to 3D">3D</option>
+          </optgroup>
+          <optgroup label="Platform">
+            <option value="platform:windows">Windows</option>
+            <option value="platform:macos">macOS</option>
+            <option value="platform:linuxbsd">Linux/*BSD</option>
+            <option value="platform:android">Android</option>
+            <option value="platform:ios">iOS</option>
+            <option value="platform:html5">HTML5</option>
+            <option value="platform:uwp" title="Universal Windows Platform">UWP</option>
+          </optgroup>
+        </select>
+        <span x-text="`${proposalsFiltered().length} open proposals`" style="margin-left: 1rem"></span>
+
         <table>
           <thead>
             <tr>
@@ -33,7 +79,7 @@
             </tr>
           </thead>
           <tbody>
-            <template x-for="proposal in proposals" :key="proposal.id">
+            <template x-for="proposal in proposalsFiltered()" :key="proposal.id">
               <tr>
                 <td>
                   <span
@@ -83,7 +129,7 @@
       <template x-if="!proposalsLoaded">
         <!-- The loading placeholder height matches the current height of the table on desktop as of 2021-11-13. -->
         <p style="text-align: center; height: 43000px; padding-top: 1.5rem; margin-top: 3rem; background-color: hsla(0, 0%, 50%, 0.1)">
-          Loading proposal list...
+          Loading proposal list, this may take a while...
         </p>
       </template>
     </div>
@@ -92,7 +138,19 @@
       function table() {
         return {
           proposals: [],
+          // Becomes `true` if proposals are successfully loaded.
           proposalsLoaded: false,
+          // The GitHub issue label to filter the list of proposals.
+          labelFilter: '',
+
+          proposalsFiltered() {
+            if (this.labelFilter !== '') {
+              return this.proposals.filter((proposal) => proposal.labels.includes(this.labelFilter));
+            }
+
+            // No filtering, but perform a deep copy anyway (we need this for some reason).
+            return this.proposals.filter((proposal) => true);
+          },
 
           async loadProposals() {
             this.proposals = await ky.get('proposals.json').json();
