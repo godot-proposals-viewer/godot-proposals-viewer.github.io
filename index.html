@@ -84,12 +84,12 @@
                 <td>
                   <span
                     x-text="`#${proposal.number}`"
-                    style="display: inline-block; min-width: 55px; margin-right: 5px; text-align: right; color: var(--gray)"
+                    style="display: inline-block; min-width: 55px; margin-right: 5px; text-align: right; color: var(--gray); margin-right: 0.25rem"
                   ></span>
                   <!-- Highlight proposals opened less than 14 days ago. -->
                   <span
                     x-text="Math.floor(Date.parse(proposal.created_at) / 1000) > Math.floor(Date.now() / 1000) - 1209600 ? 'new' : ''"
-                    style="font-weight: 700; color: var(--new-color)"
+                    style="font-weight: 700; color: var(--new-color); margin-right: 0.25rem"
                   ></span>
                   <a
                     :href="proposal.html_url"
