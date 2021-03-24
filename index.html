@@ -128,8 +128,15 @@
         </table>
       </template>
       <template x-if="!proposalsLoaded">
-        <!-- The loading placeholder height matches the current height of the table on desktop as of 2021-11-13. -->
-        <p style="text-align: center; height: 43000px; padding-top: 1.5rem; margin-top: 3rem; background-color: hsla(0, 0%, 50%, 0.1)">
+        <!-- The loading placeholder height matches the current height of the table on desktop as of 2020-11-13. -->
+        <p style="
+          text-align: center;
+          height: 43000px;
+          padding-top: 1.75rem;
+          margin-top: 3rem;
+          background-image: linear-gradient(180deg, transparent 0%, transparent 50%, hsla(0, 0%, 50%, 0.1) 50%, hsla(0, 0%, 50%, 0.1) 100%);
+          background-size: auto 3.5rem;
+        ">
           Loading proposal list, this may take a while...
         </p>
       </template>
