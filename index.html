@@ -16,7 +16,8 @@
     <h1 style="text-align: center">Godot proposals viewer</h1>
     <p>
       This page lists all open <a href="https://github.com/godotengine/godot-proposals">Godot proposals</a>
-      sorted by popularity (highest number of +1 reactions, then lowest number of -1 reactions, then highest number of comments).
+      with the ability to sort by popularity (highest number of +1 reactions, then lowest number of -1 reactions, then highest number of comments),
+      or by newest or oldest.
     </p>
     <p><a href="https://github.com/Calinou/godot-proposals-viewer">Contribute to this proposal viewer on GitHub!</a></p>
     <div x-data="table()" x-init="loadProposals()">
@@ -64,6 +65,12 @@
             <option value="platform:html5">HTML5</option>
             <option value="platform:uwp" title="Universal Windows Platform">UWP</option>
           </optgroup>
+        </select>
+        <span :style="`margin-left: 1rem; font-weight: ${labelSort === '' ? 400 : 700}`">Sort:</span>
+        <select x-model="labelSort">
+          <option value="" title="Sort proposals by popularity">Popularity</option>
+          <option value="newest" title="Sort proposals by newest first">Newest</option>
+          <option value="oldest" title="Sort proposals by oldest first">Oldest</option>
         </select>
         <span x-text="`${proposalsFiltered().length} open proposals`" style="margin-left: 1rem"></span>
 
@@ -150,25 +157,33 @@
           proposalsLoaded: false,
           // The GitHub issue label to filter the list of proposals.
           labelFilter: '',
+          labelSort: '',
 
           proposalsFiltered() {
+            var sortMethod
+            if (this.labelSort == '') {
+              sortMethod = this.sortProposalsPopularity;
+            } else if (this.labelSort == 'newest') {
+              sortMethod = this.sortProposalsNewest;
+            } else if (this.labelSort == 'oldest') {
+              sortMethod = this.sortProposalsOldest;
+            }
+
             if (this.labelFilter !== '') {
-              return this.proposals.filter((proposal) => proposal.labels.includes(this.labelFilter));
+              return this.proposals.filter((proposal) => proposal.labels.includes(this.labelFilter)).sort(sortMethod);
             }
 
             // No filtering, but perform a deep copy anyway (we need this for some reason).
-            return this.proposals.filter((proposal) => true);
+            return this.proposals.filter((proposal) => true).sort(sortMethod);
           },
 
-          async loadProposals() {
-            this.proposals = await ky.get('proposals.json').json();
-            this.proposals = this.proposals.sort((a, b) => {
-              // Sort by number of +1 reactions (descending) *then* -1 reactions
-              // (ascending) *then* number of comments (descending).
-              // This means that if several proposals have the same number of +1
-              // reactions, those with less -1 reactions will be placed at the
-              // top.
-              if (a.reactions["+1"] < b.reactions["+1"]) {
+          sortProposalsPopularity(a, b) {
+            // Sort by number of +1 reactions (descending) *then* -1 reactions
+            // (ascending) *then* number of comments (descending).
+            // This means that if several proposals have the same number of +1
+            // reactions, those with less -1 reactions will be placed at the
+            // top.
+            if (a.reactions["+1"] < b.reactions["+1"]) {
                 return 1;
               } else if (a.reactions["+1"] === b.reactions["+1"]) {
                 if (a.reactions["-1"] > b.reactions["-1"]) {
@@ -185,7 +200,26 @@
               } else {
                 return -1;
               }
-            });
+          },
+
+          sortProposalsNewest(a, b) {
+              if (a.number < b.number) {
+                return 1;
+              } else {
+                return -1;
+              }
+          },
+
+          sortProposalsOldest(a, b) {
+              if (a.number > b.number) {
+                return 1;
+              } else {
+                return -1;
+              }
+          },
+
+          async loadProposals() {
+            this.proposals = await ky.get('proposals.json').json();
 
             this.proposalsLoaded = true;
           },
