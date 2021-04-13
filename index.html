@@ -65,7 +65,9 @@
             <option value="platform:uwp" title="Universal Windows Platform">UWP</option>
           </optgroup>
         </select>
-        <span x-text="`${proposalsFiltered().length} open proposals`" style="margin-left: 1rem"></span>
+        <a style="margin-left: 1rem" x-bind:href="`https://github.com/godotengine/godot-proposals` + (labelFilter ? `/labels/${labelFilter}` : ``)">
+          <span x-text="`${proposalsFiltered().length} open proposals`"></span>
+        </a>
 
         <table>
           <thead>
