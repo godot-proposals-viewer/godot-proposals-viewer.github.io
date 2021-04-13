@@ -16,7 +16,8 @@
     <h1 style="text-align: center">Godot proposals viewer</h1>
     <p>
       This page lists all open <a href="https://github.com/godotengine/godot-proposals">Godot proposals</a>
-      sorted by popularity (highest number of +1 reactions, then lowest number of -1 reactions, then highest number of comments).
+      with the ability to sort by popularity (highest number of +1 reactions, then lowest number of -1 reactions, then highest number of comments),
+      or by newest or oldest.
     </p>
     <p><a href="https://github.com/Calinou/godot-proposals-viewer">Contribute to this proposal viewer on GitHub!</a></p>
     <div x-data="table()" x-init="loadProposals()">
@@ -67,7 +68,7 @@
         </select>
         <span :style="`margin-left: 1rem; font-weight: ${labelSort === '' ? 400 : 700}`">Sort:</span>
         <select x-model="labelSort">
-          <option value="" title="Sort proposals by score">Score</option>
+          <option value="" title="Sort proposals by popularity">Popularity</option>
           <option value="newest" title="Sort proposals by newest first">Newest</option>
           <option value="oldest" title="Sort proposals by oldest first">Oldest</option>
         </select>
@@ -161,7 +162,7 @@
           proposalsFiltered() {
             var sortMethod
             if (this.labelSort == '') {
-              sortMethod = this.sortProposalsScore;
+              sortMethod = this.sortProposalsPopularity;
             } else if (this.labelSort == 'newest') {
               sortMethod = this.sortProposalsNewest;
             } else if (this.labelSort == 'oldest') {
@@ -176,7 +177,7 @@
             return this.proposals.filter((proposal) => true).sort(sortMethod);
           },
 
-          sortProposalsScore(a, b) {
+          sortProposalsPopularity(a, b) {
             // Sort by number of +1 reactions (descending) *then* -1 reactions
             // (ascending) *then* number of comments (descending).
             // This means that if several proposals have the same number of +1
