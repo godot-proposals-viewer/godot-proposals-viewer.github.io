@@ -74,7 +74,7 @@
           <option value="oldest" title="Sort proposals by oldest first">Oldest</option>
         </select>
         <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${labelFilter}` : '')}`" target="_blank" rel="noreferrer noopener" style="margin-left: 1rem" >
-          <span x-text="`${proposalsFiltered().length} open proposals`"></span>
+          <span x-text="`${proposalsFiltered(true).length} open proposals`"></span>
         </a>
         <div style='float: right;'>
           <span :style="`font-weight: ${searchQuery === '' ? 400 : 700}`">Search:</span>
@@ -167,7 +167,7 @@
           labelSort: '',
           searchQuery: '',
 
-          proposalsFiltered() {
+          proposalsFiltered(excludeSearch) {
             let sortMethod;
             if (this.labelSort == '') {
               sortMethod = this.sortProposalsPopularity;
@@ -183,7 +183,7 @@
                   return false;
                 }
               }
-              if (this.searchQuery !== '') {
+              if (this.searchQuery !== '' && !excludeSearch) {
                 if (!proposal.title.toLowerCase().includes(this.searchQuery.toLowerCase())) {
                   return false;
                 }
