@@ -76,9 +76,9 @@
         <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${labelFilter}` : '')}`" target="_blank" rel="noreferrer noopener" style="margin-left: 1rem" >
           <span x-text="`${proposalsFiltered(true).length} open proposals`"></span>
         </a>
-        <div style='float: right;'>
+        <div style="float: right;">
           <span :style="`font-weight: ${searchQuery === '' ? 400 : 700}`">Search:</span>
-          <input x-model.debounce="searchQuery" type='text'></input>
+          <input x-model.debounce="searchQuery" type="text"></input>
         </div>
 
         <table>
