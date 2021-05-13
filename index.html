@@ -24,7 +24,7 @@
       $watch('labelFilter', (value) => {
         const url = new URL(window.location.href);
         if (value === '') {
-          url.searchParams.delete('filter', value);
+          url.searchParams.delete('filter');
         } else {
           url.searchParams.set('filter', value);
         }
@@ -33,7 +33,7 @@
       $watch('sort', (value) => {
         const url = new URL(window.location.href);
         if (value === '') {
-          url.searchParams.delete('sort', value);
+          url.searchParams.delete('sort');
         } else {
           url.searchParams.set('sort', value);
         }
