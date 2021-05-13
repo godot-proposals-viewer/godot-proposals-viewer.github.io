@@ -20,7 +20,27 @@
       or by newest or oldest.
     </p>
     <p><a href="https://github.com/Calinou/godot-proposals-viewer">Contribute to this proposal viewer on GitHub!</a></p>
-    <div x-data="table()" x-init="loadProposals()">
+    <div x-data="table()" x-init="
+      $watch('labelFilter', (value) => {
+        const url = new URL(window.location.href);
+        if (value === '') {
+          url.searchParams.delete('filter', value);
+        } else {
+          url.searchParams.set('filter', value);
+        }
+        history.pushState(null, document.title, url.toString());
+      })
+      $watch('sort', (value) => {
+        const url = new URL(window.location.href);
+        if (value === '') {
+          url.searchParams.delete('sort', value);
+        } else {
+          url.searchParams.set('sort', value);
+        }
+        history.pushState(null, document.title, url.toString());
+      })
+      loadProposals()
+    ">
       <template x-if="proposalsLoaded">
 
         <!-- Attract user attention if filter has been changed from the default (All proposals). -->
@@ -153,13 +173,15 @@
     </div>
 
     <script>
+      let searchParams = new URLSearchParams(location.search);
       function table() {
         return {
           proposals: [],
           // Becomes `true` if proposals are successfully loaded.
           proposalsLoaded: false,
           // The GitHub issue label to filter the list of proposals.
-          sort: '',
+          labelFilter: searchParams.get('filter') || '',
+          sort: searchParams.get('sort') || '',
 
           proposalsFiltered() {
             let sortMethod;
