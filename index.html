@@ -73,12 +73,12 @@
           <option value="newest" title="Sort proposals by newest first">Newest</option>
           <option value="oldest" title="Sort proposals by oldest first">Oldest</option>
         </select>
-        <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${labelFilter}` : '')}`" target="_blank" rel="noreferrer noopener" style="margin-left: 1rem" >
+        <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${labelFilter}` : '')}`" target="_blank" rel="noreferrer noopener" class="open-proposals">
           <span x-text="`${proposalsFiltered().length} open proposals`"></span>
         </a>
 
         <table>
-          <thead>
+          <thead class="headers">
             <tr>
               <!--
                 Align the Title header to the actual issue title, since the leftmost
@@ -107,7 +107,7 @@
                     :title="`#${proposal.number}&#10;Opened by ${proposal.user.login} ${Math.floor((Math.floor(Date.now() / 1000) - Math.floor(Date.parse(proposal.created_at) / 1000)) / 86400)} days ago`"
                   ></a>
                 </td>
-                <td style="min-width: 200px;">
+                <td class="score-cell" style="min-width: 200px;">
                   <span x-text="`+${proposal.reactions['+1']}`" :style="`
                     color: var(--green);
                     font-weight: ${proposal.reactions['+1'] >= 30 ? '700' : '400'};
