@@ -83,3 +83,15 @@ code {
   background-color: hsla(0, 0%, 60%, 0.2);
   padding: 0.125rem;
 }
+
+@media only screen and (max-width: 650px) {
+  td {
+    display: inline-block;
+  }
+  .headers {
+    display: none;
+  }
+  .score-cell {
+    padding-left: 4.0625rem;
+  }
+}
