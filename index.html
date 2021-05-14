@@ -73,7 +73,7 @@
           <option value="newest" title="Sort proposals by newest first">Newest</option>
           <option value="oldest" title="Sort proposals by oldest first">Oldest</option>
         </select>
-        <a class= "open-proposals" :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${labelFilter}` : '')}`" target="_blank" rel="noreferrer noopener" >
+        <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${labelFilter}` : '')}`" target="_blank" rel="noreferrer noopener" class="open-proposals">
           <span x-text="`${proposalsFiltered().length} open proposals`"></span>
         </a>
 
