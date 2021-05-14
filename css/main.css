@@ -84,6 +84,10 @@ code {
   padding: 0.125rem;
 }
 
+.open-proposals {
+  margin-left: 1rem;
+}
+
 @media only screen and (max-width: 650px) {
   td {
     display: inline-block;
@@ -93,5 +97,9 @@ code {
   }
   .score-cell {
     padding-left: 4.0625rem;
+  }
+  .open-proposals {
+    display: block;
+    margin-left: 0;
   }
 }
