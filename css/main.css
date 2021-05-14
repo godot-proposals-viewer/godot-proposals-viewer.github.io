@@ -92,12 +92,15 @@ code {
   td {
     display: inline-block;
   }
+
   .headers {
     display: none;
   }
+
   .score-cell {
     padding-left: 4.0625rem;
   }
+
   .open-proposals {
     display: block;
     margin-left: 0;
