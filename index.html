@@ -20,7 +20,27 @@
       or by newest or oldest.
     </p>
     <p><a href="https://github.com/Calinou/godot-proposals-viewer">Contribute to this proposal viewer on GitHub!</a></p>
-    <div x-data="table()" x-init="loadProposals()">
+    <div x-data="table()" x-init="
+      $watch('labelFilter', (value) => {
+        const url = new URL(window.location.href);
+        if (value === '') {
+          url.searchParams.delete('filter');
+        } else {
+          url.searchParams.set('filter', value);
+        }
+        history.pushState(null, document.title, url.toString());
+      })
+      $watch('sort', (value) => {
+        const url = new URL(window.location.href);
+        if (value === '') {
+          url.searchParams.delete('sort');
+        } else {
+          url.searchParams.set('sort', value);
+        }
+        history.pushState(null, document.title, url.toString());
+      })
+      loadProposals()
+    ">
       <template x-if="proposalsLoaded">
 
         <!-- Attract user attention if filter has been changed from the default (All proposals). -->
@@ -67,13 +87,13 @@
             <option value="platform:uwp" title="Universal Windows Platform">UWP</option>
           </optgroup>
         </select>
-        <span :style="`margin-left: 1rem; font-weight: ${labelSort === '' ? 400 : 700}`">Sort:</span>
-        <select x-model="labelSort">
+        <span :style="`margin-left: 1rem; font-weight: ${sort === '' ? 400 : 700}`">Sort:</span>
+        <select x-model="sort">
           <option value="" title="Sort proposals by popularity">Popularity</option>
           <option value="newest" title="Sort proposals by newest first">Newest</option>
           <option value="oldest" title="Sort proposals by oldest first">Oldest</option>
         </select>
-        <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${labelFilter}` : '')}`" target="_blank" rel="noreferrer noopener" style="margin-left: 1rem" >
+        <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${labelFilter}` : '')}`" target="_blank" rel="noreferrer noopener" class="open-proposals">
           <span x-text="`${proposalsFiltered(true).length} open proposals`"></span>
         </a>
         <div style="float: right;">
@@ -82,7 +102,7 @@
         </div>
 
         <table>
-          <thead>
+          <thead class="headers">
             <tr>
               <!--
                 Align the Title header to the actual issue title, since the leftmost
@@ -111,7 +131,7 @@
                     :title="`#${proposal.number}&#10;Opened by ${proposal.user.login} ${Math.floor((Math.floor(Date.now() / 1000) - Math.floor(Date.parse(proposal.created_at) / 1000)) / 86400)} days ago`"
                   ></a>
                 </td>
-                <td style="min-width: 200px;">
+                <td class="score-cell" style="min-width: 200px;">
                   <span x-text="`+${proposal.reactions['+1']}`" :style="`
                     color: var(--green);
                     font-weight: ${proposal.reactions['+1'] >= 30 ? '700' : '400'};
@@ -157,23 +177,24 @@
     </div>
 
     <script>
+      let searchParams = new URLSearchParams(location.search);
       function table() {
         return {
           proposals: [],
           // Becomes `true` if proposals are successfully loaded.
           proposalsLoaded: false,
           // The GitHub issue label to filter the list of proposals.
-          labelFilter: '',
-          labelSort: '',
+          labelFilter: searchParams.get('filter') || '',
+          sort: searchParams.get('sort') || '',
           searchQuery: '',
 
           proposalsFiltered(excludeSearch) {
             let sortMethod;
-            if (this.labelSort == '') {
+            if (this.sort == '') {
               sortMethod = this.sortProposalsPopularity;
-            } else if (this.labelSort == 'newest') {
+            } else if (this.sort == 'newest') {
               sortMethod = this.sortProposalsNewest;
-            } else if (this.labelSort == 'oldest') {
+            } else if (this.sort == 'oldest') {
               sortMethod = this.sortProposalsOldest;
             }
 
