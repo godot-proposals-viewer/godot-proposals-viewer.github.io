@@ -94,8 +94,12 @@
           <option value="oldest" title="Sort proposals by oldest first">Oldest</option>
         </select>
         <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${labelFilter}` : '')}`" target="_blank" rel="noreferrer noopener" class="open-proposals">
-          <span x-text="`${proposalsFiltered().length} open proposals`"></span>
+          <span x-text="`${proposalsFiltered(true).length} open proposals`"></span>
         </a>
+        <div style="float: right;">
+          <span :style="`font-weight: ${searchQuery === '' ? 400 : 700}`">Search:</span>
+          <input x-model.debounce="searchQuery" type="text"></input>
+        </div>
 
         <table>
           <thead class="headers">
@@ -182,8 +186,9 @@
           // The GitHub issue label to filter the list of proposals.
           labelFilter: searchParams.get('filter') || '',
           sort: searchParams.get('sort') || '',
+          searchQuery: '',
 
-          proposalsFiltered() {
+          proposalsFiltered(excludeSearch) {
             let sortMethod;
             if (this.sort == '') {
               sortMethod = this.sortProposalsPopularity;
@@ -193,12 +198,21 @@
               sortMethod = this.sortProposalsOldest;
             }
 
-            if (this.labelFilter !== '') {
-              return this.proposals.filter((proposal) => proposal.labels.includes(this.labelFilter)).sort(sortMethod);
-            }
+            const filteredProposals = this.proposals.filter((proposal) => {
+              if (this.labelFilter !== '') {
+                if (!proposal.labels.includes(this.labelFilter)) {
+                  return false;
+                }
+              }
+              if (this.searchQuery !== '' && !excludeSearch) {
+                if (!proposal.title.toLowerCase().includes(this.searchQuery.toLowerCase())) {
+                  return false;
+                }
+              }
+              return true;
+            });
 
-            // No filtering, but perform a deep copy anyway (we need this for some reason).
-            return this.proposals.filter((proposal) => true).sort(sortMethod);
+            return filteredProposals.sort(sortMethod);
           },
 
           sortProposalsPopularity(a, b) {
