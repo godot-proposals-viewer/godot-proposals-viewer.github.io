@@ -198,7 +198,7 @@
               sortMethod = this.sortProposalsOldest;
             }
 
-            let filteredProposals = this.proposals.filter((proposal) => {
+            const filteredProposals = this.proposals.filter((proposal) => {
               if (this.labelFilter !== '') {
                 if (!proposal.labels.includes(this.labelFilter)) {
                   return false;
