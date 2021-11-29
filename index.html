@@ -98,7 +98,7 @@
           </a>
           <div style="float: right;">
             <span :style="`font-weight: ${searchQuery === '' ? 400 : 700}`">Search:</span>
-            <input x-model.debounce="searchQuery" type="text"></input>
+            <input x-model.debounce="searchQuery" type="text" placeholder="Title or author name"></input>
           </div>
 
           <table>
@@ -222,7 +222,11 @@
                 }
               }
               if (this.searchQuery !== '' && !excludeSearch) {
-                if (!proposal[KEY_TITLE].toLowerCase().includes(this.searchQuery.toLowerCase())) {
+                // Search in both proposal title and author username.
+                if (
+                    !proposal[KEY_TITLE].toLowerCase().includes(this.searchQuery.toLowerCase()) &&
+                    !proposal[KEY_USER_LOGIN].toLowerCase().includes(this.searchQuery.toLowerCase())
+                ) {
                   return false;
                 }
               }
