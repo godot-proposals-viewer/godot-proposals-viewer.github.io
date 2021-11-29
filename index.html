@@ -20,7 +20,7 @@
       or by newest or oldest.
     </p>
     <p><a href="https://github.com/Calinou/godot-proposals-viewer">Contribute to this proposal viewer on GitHub!</a></p>
-    <div x-data="table()" x-init="
+    <main x-data="table()" x-init="
       $watch('labelFilter', (value) => {
         const url = new URL(window.location.href);
         if (value === '') {
@@ -42,124 +42,125 @@
       loadProposals()
     ">
       <template x-if="proposalsLoaded">
+        <div>
+          <!-- Attract user attention if filter has been changed from the default (All proposals). -->
+          <span :style="`font-weight: ${labelFilter === '' ? 400 : 700}`">Filter:</span>
+          <select x-model="labelFilter">
+            <option value="" title="Proposals not related to Godot itself">All proposals</option>
+            <option value="meta" title="Proposals not related to Godot itself">Meta proposals</option>
+            <optgroup label="Topic">
+              <option value="topic:animation">Animation</option>
+              <option value="topic:assetlib">Asset library</option>
+              <option value="topic:audio">Audio</option>
+              <option value="topic:buildsystem">Build system</option>
+              <option value="topic:codestyle">Code style</option>
+              <option value="topic:core">Core</option>
+              <option value="topic:docs">Documentation</option>
+              <option value="topic:editor">Editor</option>
+              <option value="topic:export">Export</option>
+              <option value="topic:gdnative">GDNative</option>
+              <option value="topic:gdscript">GDScript</option>
+              <option value="topic:gui" title="Graphical User Interface">GUI</option>
+              <option value="topic:import" title="Resource importing system and asset pipeline">Import</option>
+              <option value="topic:input">Input</option>
+              <option value="topic:mono">Mono (C#)</option>
+              <option value="topic:navigation">Navigation</option>
+              <option value="topic:network">Network</option>
+              <option value="topic:physics">Physics</option>
+              <option value="topic:plugin" title="Editor plugins">Plugin</option>
+              <option value="topic:porting">Porting</option>
+              <option value="topic:rendering">Rendering</option>
+              <option value="topic:shaders" title="Godot shader language">Shaders</option>
+              <option value="topic:tests" title="Unit testing / integration testing">Tests</option>
+              <option value="topic:visualscript">VisualScript</option>
+              <option value="topic:xr">XR</option>
+              <option value="topic:2d" title="Any proposal related to 2D">2D</option>
+              <option value="topic:3d" title="Any proposal related to 3D">3D</option>
+            </optgroup>
+            <optgroup label="Platform">
+              <option value="platform:windows">Windows</option>
+              <option value="platform:macos">macOS</option>
+              <option value="platform:linuxbsd">Linux/*BSD</option>
+              <option value="platform:android">Android</option>
+              <option value="platform:ios">iOS</option>
+              <option value="platform:html5">HTML5</option>
+              <option value="platform:uwp" title="Universal Windows Platform">UWP</option>
+            </optgroup>
+          </select>
+          <span :style="`margin-left: 1rem; font-weight: ${sort === '' ? 400 : 700}`">Sort:</span>
+          <select x-model="sort">
+            <option value="" title="Sort proposals by popularity">Popularity</option>
+            <option value="newest" title="Sort proposals by newest first">Newest</option>
+            <option value="oldest" title="Sort proposals by oldest first">Oldest</option>
+          </select>
+          <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${labelFilter}` : '')}`" target="_blank" rel="noreferrer noopener" class="open-proposals">
+            <span x-text="`${proposalsFiltered(true).length} open proposals`"></span>
+          </a>
+          <div style="float: right;">
+            <span :style="`font-weight: ${searchQuery === '' ? 400 : 700}`">Search:</span>
+            <input x-model.debounce="searchQuery" type="text"></input>
+          </div>
 
-        <!-- Attract user attention if filter has been changed from the default (All proposals). -->
-        <span :style="`font-weight: ${labelFilter === '' ? 400 : 700}`">Filter:</span>
-        <select x-model="labelFilter">
-          <option value="" title="Proposals not related to Godot itself">All proposals</option>
-          <option value="meta" title="Proposals not related to Godot itself">Meta proposals</option>
-          <optgroup label="Topic">
-            <option value="topic:animation">Animation</option>
-            <option value="topic:assetlib">Asset library</option>
-            <option value="topic:audio">Audio</option>
-            <option value="topic:buildsystem">Build system</option>
-            <option value="topic:codestyle">Code style</option>
-            <option value="topic:core">Core</option>
-            <option value="topic:docs">Documentation</option>
-            <option value="topic:editor">Editor</option>
-            <option value="topic:export">Export</option>
-            <option value="topic:gdnative">GDNative</option>
-            <option value="topic:gdscript">GDScript</option>
-            <option value="topic:gui" title="Graphical User Interface">GUI</option>
-            <option value="topic:import" title="Resource importing system and asset pipeline">Import</option>
-            <option value="topic:input">Input</option>
-            <option value="topic:mono">Mono (C#)</option>
-            <option value="topic:navigation">Navigation</option>
-            <option value="topic:network">Network</option>
-            <option value="topic:physics">Physics</option>
-            <option value="topic:plugin" title="Editor plugins">Plugin</option>
-            <option value="topic:porting">Porting</option>
-            <option value="topic:rendering">Rendering</option>
-            <option value="topic:shaders" title="Godot shader language">Shaders</option>
-            <option value="topic:tests" title="Unit testing / integration testing">Tests</option>
-            <option value="topic:visualscript">VisualScript</option>
-            <option value="topic:xr">XR</option>
-            <option value="topic:2d" title="Any proposal related to 2D">2D</option>
-            <option value="topic:3d" title="Any proposal related to 3D">3D</option>
-          </optgroup>
-          <optgroup label="Platform">
-            <option value="platform:windows">Windows</option>
-            <option value="platform:macos">macOS</option>
-            <option value="platform:linuxbsd">Linux/*BSD</option>
-            <option value="platform:android">Android</option>
-            <option value="platform:ios">iOS</option>
-            <option value="platform:html5">HTML5</option>
-            <option value="platform:uwp" title="Universal Windows Platform">UWP</option>
-          </optgroup>
-        </select>
-        <span :style="`margin-left: 1rem; font-weight: ${sort === '' ? 400 : 700}`">Sort:</span>
-        <select x-model="sort">
-          <option value="" title="Sort proposals by popularity">Popularity</option>
-          <option value="newest" title="Sort proposals by newest first">Newest</option>
-          <option value="oldest" title="Sort proposals by oldest first">Oldest</option>
-        </select>
-        <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${labelFilter}` : '')}`" target="_blank" rel="noreferrer noopener" class="open-proposals">
-          <span x-text="`${proposalsFiltered(true).length} open proposals`"></span>
-        </a>
-        <div style="float: right;">
-          <span :style="`font-weight: ${searchQuery === '' ? 400 : 700}`">Search:</span>
-          <input x-model.debounce="searchQuery" type="text"></input>
-        </div>
-
-        <table>
-          <thead class="headers">
-            <tr>
-              <!--
-                Align the Title header to the actual issue title, since the leftmost
-                part is reserved to the issue ID.
-              -->
-              <td style="padding-left: 4.0625rem">Title</td>
-              <td>Score</td>
-            </tr>
-          </thead>
-          <tbody>
-            <template x-for="proposal in proposalsFiltered()" :key="proposal.id">
+          <table>
+            <thead class="headers">
               <tr>
-                <td>
-                  <span
-                    x-text="`#${proposal.number}`"
-                    style="display: inline-block; min-width: 55px; margin-right: 5px; text-align: right; color: var(--gray); margin-right: 0.25rem"
-                  ></span>
-                  <!-- Highlight proposals opened less than 14 days ago. -->
-                  <span
-                    x-text="Math.floor(Date.parse(proposal.created_at) / 1000) > Math.floor(Date.now() / 1000) - 1209600 ? 'new' : ''"
-                    style="font-weight: 700; color: var(--new-color); margin-right: 0.25rem"
-                  ></span>
-                  <a
-                    :href="proposal.html_url"
-                    x-html="formatProposalTitle(proposal.title)"
-                    :title="`#${proposal.number}&#10;Opened by ${proposal.user.login} ${Math.floor((Math.floor(Date.now() / 1000) - Math.floor(Date.parse(proposal.created_at) / 1000)) / 86400)} days ago`"
-                  ></a>
-                </td>
-                <td class="score-cell" style="min-width: 200px;">
-                  <span x-text="`+${proposal.reactions['+1']}`" :style="`
-                    color: var(--green);
-                    font-weight: ${proposal.reactions['+1'] >= 30 ? '700' : '400'};
-                  `"></span>
-                  <span x-text="`-${proposal.reactions['-1']}`" :style="`
-                    color: var(--red);
-                    font-weight: ${proposal.reactions['-1'] >= 5 ? '700' : '400'};
-                    margin-left: 0.25rem;
-                  `"></span>
-
-                  <!-- The bar is fully opaque with 14 +1 reactions or more. -->
-                  <meter
-                    min="0"
-                    :value="proposal.reactions['+1']"
-                    :max="proposal.reactions['+1'] + proposal.reactions['-1']"
-                    :style="`opacity: ${proposal.reactions['+1'] * 7.5}%; margin-left: 0.25rem;`"
-                  ></meter>
-
-                  <span
-                    x-show="proposal.comments >= 1"
-                    x-text="`💬 ${proposal.comments}`"
-                    :style="`opacity: ${(0.25 + proposal.comments / 40) * 100}%`"
-                  ></span>
-                </td>
+                <!--
+                  Align the Title header to the actual issue title, since the leftmost
+                  part is reserved to the issue ID.
+                -->
+                <td style="padding-left: 4.0625rem">Title</td>
+                <td>Score</td>
               </tr>
-            </template>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <template x-for="proposal in proposalsFiltered()" :key="proposal[KEY_ID]">
+                <tr>
+                  <td>
+                    <span
+                      x-text="`#${proposal[KEY_NUMBER]}`"
+                      style="display: inline-block; min-width: 55px; margin-right: 5px; text-align: right; color: var(--gray); margin-right: 0.25rem"
+                    ></span>
+                    <!-- Highlight proposals opened less than 14 days ago. -->
+                    <span
+                      x-text="Math.floor(Date.parse(proposal[KEY_CREATED_AT]) / 1000) > Math.floor(Date.now() / 1000) - 1209600 ? 'new' : ''"
+                      style="font-weight: 700; color: var(--new-color); margin-right: 0.25rem"
+                    ></span>
+                    <a
+                      :href="proposal[KEY_HTML_URL]"
+                      x-html="formatProposalTitle(proposal[KEY_TITLE])"
+                      :title="`#${proposal[KEY_NUMBER]}&#10;Opened by ${proposal[KEY_USER_LOGIN]} ${Math.floor((Math.floor(Date.now() / 1000) - Math.floor(Date.parse(proposal[KEY_CREATED_AT]) / 1000)) / 86400)} days ago`"
+                    ></a>
+                  </td>
+                  <td class="score-cell" style="min-width: 200px;">
+                    <span x-text="`+${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]}`" :style="`
+                      color: var(--green);
+                      font-weight: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] >= 30 ? '700' : '400'};
+                    `"></span>
+                    <span x-text="`-${proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]}`" :style="`
+                      color: var(--red);
+                      font-weight: ${proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE] >= 5 ? '700' : '400'};
+                      margin-left: 0.25rem;
+                    `"></span>
+
+                    <!-- The bar is fully opaque with 14 +1 reactions or more. -->
+                    <meter
+                      min="0"
+                      :value="proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]"
+                      :max="proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] + proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]"
+                      :style="`opacity: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] * 7.5}%; margin-left: 0.25rem;`"
+                    ></meter>
+
+                    <span
+                      x-show="proposal[KEY_COMMENTS] >= 1"
+                      x-text="`💬 ${proposal[KEY_COMMENTS]}`"
+                      :style="`opacity: ${(0.25 + proposal[KEY_COMMENTS] / 40) * 100}%`"
+                    ></span>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
       </template>
       <template x-if="!proposalsLoaded">
         <!-- The loading placeholder height matches the current height of the table on desktop as of 2020-11-13. -->
@@ -174,10 +175,26 @@
           Loading proposal list, this may take a while...
         </p>
       </template>
-    </div>
+    </main>
 
     <script>
       let searchParams = new URLSearchParams(location.search);
+
+      // Array indices for JSON keys.
+      const KEY_ID = 0;
+      const KEY_NUMBER = 1;
+      const KEY_TITLE = 2;
+      const KEY_CREATED_AT = 3;
+      const KEY_HTML_URL = 4;
+      const KEY_USER_LOGIN = 5;
+      const KEY_COMMENTS = 6;
+      const KEY_LABELS = 7;
+      const KEY_REACTIONS = 8;
+
+      // Array indices for the `REACTIONS` array.
+      const KEY_REACTIONS_POSITIVE = 0;
+      const KEY_REACTIONS_NEGATIVE = 1;
+
       function table() {
         return {
           proposals: [],
@@ -200,12 +217,12 @@
 
             const filteredProposals = this.proposals.filter((proposal) => {
               if (this.labelFilter !== '') {
-                if (!proposal.labels.includes(this.labelFilter)) {
+                if (!proposal[KEY_LABELS].includes(this.labelFilter)) {
                   return false;
                 }
               }
               if (this.searchQuery !== '' && !excludeSearch) {
-                if (!proposal.title.toLowerCase().includes(this.searchQuery.toLowerCase())) {
+                if (!proposal[KEY_TITLE].toLowerCase().includes(this.searchQuery.toLowerCase())) {
                   return false;
                 }
               }
@@ -221,12 +238,12 @@
             // This means that if several proposals have the same number of +1
             // reactions, those with less -1 reactions will be placed at the
             // top.
-            if (a.reactions["+1"] < b.reactions["+1"]) {
+            if (a[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] < b[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]) {
                 return 1;
-              } else if (a.reactions["+1"] === b.reactions["+1"]) {
-                if (a.reactions["-1"] > b.reactions["-1"]) {
+              } else if (a[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] === b[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]) {
+                if (a[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE] > b[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]) {
                   return 1;
-                } else if (a.reactions["-1"] === b.reactions["-1"]) {
+                } else if (a[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE] === b[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]) {
                   if (a.comments < b.comments) {
                     return 1;
                   } else {

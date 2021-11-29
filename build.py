@@ -2,7 +2,7 @@
 
 import json
 import os
-from typing import Any, Dict, List
+from typing import Any, List
 
 import requests
 
@@ -14,7 +14,7 @@ def main() -> None:
 
     print("[*] Fetching proposal JSON pages...")
 
-    all_proposals: List[Dict[str, Any]] = []
+    all_proposals: List[List[Any]] = []
 
     page = 1
     # We'll set the number of pages to a "finite" number once we make a request.
@@ -42,21 +42,20 @@ def main() -> None:
 
         for proposal in request_dict:
             # Only include fields we use on the frontend.
+            # Use an optimized array form to avoid including dozens of thousands
+            # of string keys in the JSON.
             all_proposals.append(
-                {
-                    "id": proposal["id"],
-                    "number": proposal["number"],
-                    "title": proposal["title"],
-                    "created_at": proposal["created_at"],
-                    "html_url": proposal["html_url"],
-                    "user": {"login": proposal["user"]["login"]},
-                    "comments": proposal["comments"],
-                    "labels": [label["name"] for label in proposal["labels"]],
-                    "reactions": {
-                        "+1": proposal["reactions"]["+1"],
-                        "-1": proposal["reactions"]["-1"],
-                    },
-                }
+                [
+                    proposal["id"],
+                    proposal["number"],
+                    proposal["title"],
+                    proposal["created_at"],
+                    proposal["html_url"],
+                    proposal["user"]["login"],
+                    proposal["comments"],
+                    [label["name"] for label in proposal["labels"]],
+                    [proposal["reactions"]["+1"], proposal["reactions"]["-1"]],
+                ]
             )
 
         page += 1
