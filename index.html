@@ -47,44 +47,44 @@
           <span :style="`font-weight: ${labelFilter === '' ? 400 : 700}`">Filter:</span>
           <select x-model="labelFilter">
             <option value="" title="Proposals not related to Godot itself">All proposals</option>
-            <option value="meta" title="Proposals not related to Godot itself">Meta proposals</option>
+            <option value="0" title="Proposals not related to Godot itself">Meta proposals</option>
             <optgroup label="Topic">
-              <option value="topic:animation">Animation</option>
-              <option value="topic:assetlib">Asset library</option>
-              <option value="topic:audio">Audio</option>
-              <option value="topic:buildsystem">Build system</option>
-              <option value="topic:codestyle">Code style</option>
-              <option value="topic:core">Core</option>
-              <option value="topic:docs">Documentation</option>
-              <option value="topic:editor">Editor</option>
-              <option value="topic:export">Export</option>
-              <option value="topic:gdnative">GDNative</option>
-              <option value="topic:gdscript">GDScript</option>
-              <option value="topic:gui" title="Graphical User Interface">GUI</option>
-              <option value="topic:import" title="Resource importing system and asset pipeline">Import</option>
-              <option value="topic:input">Input</option>
-              <option value="topic:mono">Mono (C#)</option>
-              <option value="topic:navigation">Navigation</option>
-              <option value="topic:network">Network</option>
-              <option value="topic:physics">Physics</option>
-              <option value="topic:plugin" title="Editor plugins">Plugin</option>
-              <option value="topic:porting">Porting</option>
-              <option value="topic:rendering">Rendering</option>
-              <option value="topic:shaders" title="Godot shader language">Shaders</option>
-              <option value="topic:tests" title="Unit testing / integration testing">Tests</option>
-              <option value="topic:visualscript">VisualScript</option>
-              <option value="topic:xr">XR</option>
-              <option value="topic:2d" title="Any proposal related to 2D">2D</option>
-              <option value="topic:3d" title="Any proposal related to 3D">3D</option>
+              <option value="1">Animation</option>
+              <option value="2">Asset library</option>
+              <option value="3">Audio</option>
+              <option value="4">Build system</option>
+              <option value="5">Code style</option>
+              <option value="6">Core</option>
+              <option value="7">Documentation</option>
+              <option value="8">Editor</option>
+              <option value="9">Export</option>
+              <option value="10">GDNative</option>
+              <option value="11">GDScript</option>
+              <option value="12" title="Graphical User Interface">GUI</option>
+              <option value="13" title="Resource importing system and asset pipeline">Import</option>
+              <option value="14">Input</option>
+              <option value="15">Mono (C#)</option>
+              <option value="16">Navigation</option>
+              <option value="17">Network</option>
+              <option value="18">Physics</option>
+              <option value="19" title="Editor plugins">Plugin</option>
+              <option value="20">Porting</option>
+              <option value="21">Rendering</option>
+              <option value="22" title="Godot shader language">Shaders</option>
+              <option value="23" title="Unit testing / integration testing">Tests</option>
+              <option value="24">VisualScript</option>
+              <option value="25">XR</option>
+              <option value="26" title="Any proposal related to 2D">2D</option>
+              <option value="27" title="Any proposal related to 3D">3D</option>
             </optgroup>
             <optgroup label="Platform">
-              <option value="platform:windows">Windows</option>
-              <option value="platform:macos">macOS</option>
-              <option value="platform:linuxbsd">Linux/*BSD</option>
-              <option value="platform:android">Android</option>
-              <option value="platform:ios">iOS</option>
-              <option value="platform:html5">HTML5</option>
-              <option value="platform:uwp" title="Universal Windows Platform">UWP</option>
+              <option value="80">Windows</option>
+              <option value="81">macOS</option>
+              <option value="82">Linux/*BSD</option>
+              <option value="83">Android</option>
+              <option value="84">iOS</option>
+              <option value="85">HTML5</option>
+              <option value="86" title="Universal Windows Platform">UWP</option>
             </optgroup>
           </select>
           <span :style="`margin-left: 1rem; font-weight: ${sort === '' ? 400 : 700}`">Sort:</span>
@@ -93,7 +93,7 @@
             <option value="newest" title="Sort proposals by newest first">Newest</option>
             <option value="oldest" title="Sort proposals by oldest first">Oldest</option>
           </select>
-          <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${labelFilter}` : '')}`" target="_blank" rel="noreferrer noopener" class="open-proposals">
+          <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${getLabelName(labelFilter)}` : '')}`" target="_blank" rel="noreferrer noopener" class="open-proposals">
             <span x-text="`${proposalsFiltered(true).length} open proposals`"></span>
           </a>
           <div style="float: right;">
@@ -217,7 +217,7 @@
 
             const filteredProposals = this.proposals.filter((proposal) => {
               if (this.labelFilter !== '') {
-                if (!proposal[KEY_LABELS].includes(this.labelFilter)) {
+                if (!proposal[KEY_LABELS].includes(Number(this.labelFilter))) {
                   return false;
                 }
               }
@@ -314,6 +314,91 @@
               return titleEscaped;
             }
           },
+
+          /**
+           * Returns the name of the GitHub label corresponding to the JSON label code.
+           * NOTE: This must be kept in sync with `get_label_code()` in `build.py`.
+           */
+          getLabelName(labelCode) {
+            switch (Number(labelCode)) {
+              case 0:
+                return "meta";
+
+              case 1:
+                return "topic:animation";
+              case 2:
+                return "topic:assetlib";
+              case 3:
+                return "topic:audio";
+              case 4:
+                return "topic:buildsystem";
+              case 5:
+                return "topic:codestyle";
+              case 6:
+                return "topic:core";
+              case 7:
+                return "topic:docs";
+              case 8:
+                return "topic:editor";
+              case 9:
+                return "topic:export";
+              case 10:
+                return "topic:gdnative";
+              case 11:
+                return "topic:gdscript";
+              case 12:
+                return "topic:gui";
+              case 13:
+                return "topic:import";
+              case 14:
+                return "topic:input";
+              case 15:
+                return "topic:mono";
+              case 16:
+                return "topic:navigation";
+              case 17:
+                return "topic:network";
+              case 18:
+                return "topic:physics";
+              case 19:
+                return "topic:plugin";
+              case 20:
+                return "topic:porting";
+              case 21:
+                return "topic:rendering";
+              case 22:
+                return "topic:shaders";
+              case 23:
+                return "topic:tests";
+              case 24:
+                return "topic:visualscript";
+              case 25:
+                return "topic:xr";
+              case 26:
+                return "topic:2d";
+              case 27:
+                return "topic:3d";
+
+              case 80:
+                return "platform:windows";
+              case 81:
+                return "platform:macos";
+              case 82:
+                return "platform:linuxbsd";
+              case 83:
+                return "platform:android";
+              case 84:
+                return "platform:ios";
+              case 85:
+                return "platform:html5";
+              case 86:
+                return "platform:uwp";
+
+              default:
+                console.error("Unknown label code from JSON: " + labelCode);
+                return "";
+            }
+          }
         }
       }
     </script>
