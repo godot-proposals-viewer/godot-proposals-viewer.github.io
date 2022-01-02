@@ -129,11 +129,9 @@ def main() -> None:
             # of string keys in the JSON.
             all_proposals.append(
                 [
-                    proposal["id"],
                     proposal["number"],
                     proposal["title"],
                     proposal["created_at"],
-                    proposal["html_url"],
                     proposal["user"]["login"],
                     proposal["comments"],
                     [get_label_code(label["name"]) for label in proposal["labels"]],

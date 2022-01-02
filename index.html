@@ -113,7 +113,8 @@
               </tr>
             </thead>
             <tbody>
-              <template x-for="proposal in proposalsFiltered()" :key="proposal[KEY_ID]">
+              <!-- GitHub issue numbers are unique on a given repository, so it's safe to use as a key. -->
+              <template x-for="proposal in proposalsFiltered()" :key="proposal[KEY_NUMBER]">
                 <tr>
                   <td>
                     <span
@@ -126,7 +127,7 @@
                       style="font-weight: 700; color: var(--new-color); margin-right: 0.25rem"
                     ></span>
                     <a
-                      :href="proposal[KEY_HTML_URL]"
+                      :href="`https://github.com/godotengine/godot-proposals/issues/${proposal[KEY_NUMBER]}`"
                       x-html="formatProposalTitle(proposal[KEY_TITLE])"
                       :title="`#${proposal[KEY_NUMBER]}&#10;Opened by ${proposal[KEY_USER_LOGIN]} ${Math.floor((Math.floor(Date.now() / 1000) - Math.floor(Date.parse(proposal[KEY_CREATED_AT]) / 1000)) / 86400)} days ago`"
                     ></a>
@@ -181,15 +182,13 @@
       const searchParams = new URLSearchParams(location.search);
 
       // Array indices for JSON keys.
-      const KEY_ID = 0;
-      const KEY_NUMBER = 1;
-      const KEY_TITLE = 2;
-      const KEY_CREATED_AT = 3;
-      const KEY_HTML_URL = 4;
-      const KEY_USER_LOGIN = 5;
-      const KEY_COMMENTS = 6;
-      const KEY_LABELS = 7;
-      const KEY_REACTIONS = 8;
+      const KEY_NUMBER = 0;
+      const KEY_TITLE = 1;
+      const KEY_CREATED_AT = 2;
+      const KEY_USER_LOGIN = 3;
+      const KEY_COMMENTS = 4;
+      const KEY_LABELS = 5;
+      const KEY_REACTIONS = 6;
 
       // Array indices for the `REACTIONS` array.
       const KEY_REACTIONS_POSITIVE = 0;
