@@ -4,7 +4,7 @@
   --green: hsl(130, 45%, 30%);
   --red: hsl(5, 50%, 35%);
   --gray: hsl(0, 0%, 50%);
-  --link-color: hsl(210, 90%, 50%);
+  --link-color: hsl(210, 100%, 45%);
   --link-underline-color: hsla(210, 90%, 50%, 0.3);
   --new-color: hsl(15, 90%, 50%);
 }
