@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import dateutil.parser as dateutil_parser
 import json
 import os
 from typing import Any, List
@@ -86,7 +87,9 @@ def get_label_code(label_name: str) -> int:
     if label_name == "platform:uwp":
         return 86
 
-    print(f"WARNING: Unknown label name (no code assigned in `get_label_code()`): {label_name}")
+    print(
+        f"WARNING: Unknown label name (no code assigned in `get_label_code()`): {label_name}"
+    )
     return -1
 
 
@@ -127,11 +130,12 @@ def main() -> None:
             # Only include fields we use on the frontend.
             # Use an optimized array form to avoid including dozens of thousands
             # of string keys in the JSON.
+            # Store the creation date as an UNIX timestamp integer as it's smaller than an ISO 8601 string.
             all_proposals.append(
                 [
                     proposal["number"],
                     proposal["title"],
-                    proposal["created_at"],
+                    int(dateutil_parser.parse(proposal["created_at"]).strftime("%s")),
                     proposal["user"]["login"],
                     proposal["comments"],
                     [get_label_code(label["name"]) for label in proposal["labels"]],

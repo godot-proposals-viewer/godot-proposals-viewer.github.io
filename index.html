@@ -123,13 +123,13 @@
                     ></span>
                     <!-- Highlight proposals opened less than 14 days ago. -->
                     <span
-                      x-text="Math.floor(Date.parse(proposal[KEY_CREATED_AT]) / 1000) > Math.floor(Date.now() / 1000) - 1209600 ? 'new' : ''"
+                      x-text="(new Date(proposal[KEY_CREATED_AT] * 1000) / 1000) > Date.now() / 1000 - 1209600 ? 'new' : ''"
                       style="font-weight: 700; color: var(--new-color); margin-right: 0.25rem"
                     ></span>
                     <a
                       :href="`https://github.com/godotengine/godot-proposals/issues/${proposal[KEY_NUMBER]}`"
                       x-html="formatProposalTitle(proposal[KEY_TITLE])"
-                      :title="`#${proposal[KEY_NUMBER]}&#10;Opened by ${proposal[KEY_USER_LOGIN]} ${Math.floor((Math.floor(Date.now() / 1000) - Math.floor(Date.parse(proposal[KEY_CREATED_AT]) / 1000)) / 86400)} days ago`"
+                      :title="`#${proposal[KEY_NUMBER]}&#10;Opened by ${proposal[KEY_USER_LOGIN]} ${Math.floor((Date.now() / 1000 - new Date(proposal[KEY_CREATED_AT])) / 86400)} days ago`"
                     ></a>
                   </td>
                   <td class="score-cell" style="min-width: 200px;">
