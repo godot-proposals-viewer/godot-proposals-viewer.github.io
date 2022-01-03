@@ -29,7 +29,7 @@ Follow these instructions to set up this site locally for development purposes:
 
 ## License
 
-Copyright © 2020-2021 Hugo Locurcio and contributors
+Copyright © 2020-2022 Hugo Locurcio and contributors
 
 Unless otherwise specified, files in this repository are licensed under the
 MIT license. See [LICENSE.md](LICENSE.md) for more information.
