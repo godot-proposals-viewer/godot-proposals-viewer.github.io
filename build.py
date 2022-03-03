@@ -64,7 +64,7 @@ def get_label_code(label_name: str) -> int:
         return 13
     if label_name == "topic:input":
         return 14
-    if label_name == "topic:mono":
+    if label_name == "topic:dotnet":
         return 15
     if label_name == "topic:navigation":
         return 16
