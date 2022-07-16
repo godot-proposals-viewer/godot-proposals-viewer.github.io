@@ -261,7 +261,7 @@
           },
 
           sortProposalsNewest(a, b) {
-            if (a.number < b.number) {
+            if (a[KEY_NUMBER] < b[KEY_NUMBER]) {
               return 1;
             }
 
@@ -269,7 +269,7 @@
           },
 
           sortProposalsOldest(a, b) {
-            if (a.number > b.number) {
+            if (a[KEY_NUMBER] > b[KEY_NUMBER]) {
               return 1;
             }
 
