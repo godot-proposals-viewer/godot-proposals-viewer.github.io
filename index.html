@@ -46,8 +46,9 @@
           <!-- Attract user attention if filter has been changed from the default (All proposals). -->
           <span :style="`font-weight: ${labelFilter === '' ? 400 : 700}`">Filter:</span>
           <select x-model="labelFilter">
-            <option value="" title="Proposals not related to Godot itself">All proposals</option>
+            <option value="">All proposals</option>
             <option value="0" title="Proposals not related to Godot itself">Meta proposals</option>
+            <option value="60" title="Proposals that are approved and can be implemented by anyone">Implementer wanted</option>
             <optgroup label="Topic">
               <option value="1">Animation</option>
               <option value="2">Asset library</option>
@@ -58,7 +59,7 @@
               <option value="7">Documentation</option>
               <option value="8">Editor</option>
               <option value="9">Export</option>
-              <option value="10">GDNative</option>
+              <option value="10">GDExtension</option>
               <option value="11">GDScript</option>
               <option value="12" title="Graphical User Interface">GUI</option>
               <option value="13" title="Resource importing system and asset pipeline">Import</option>
@@ -76,6 +77,12 @@
               <option value="25">XR</option>
               <option value="26" title="Any proposal related to 2D">2D</option>
               <option value="27" title="Any proposal related to 3D">3D</option>
+              <option value="28">Particles</option>
+            </optgroup>
+            <optgroup label="Type">
+              <option value="70">Usability</option>
+              <option value="71">Performance</option>
+              <option value="72">Breaks compatibility</option>
             </optgroup>
             <optgroup label="Platform">
               <option value="80">Windows</option>
@@ -83,7 +90,7 @@
               <option value="82">Linux/*BSD</option>
               <option value="83">Android</option>
               <option value="84">iOS</option>
-              <option value="85">HTML5</option>
+              <option value="85">Web</option>
               <option value="86" title="Universal Windows Platform">UWP</option>
             </optgroup>
           </select>
@@ -323,6 +330,7 @@
               case 0:
                 return "meta";
 
+              // Topic
               case 1:
                 return "topic:animation";
               case 2:
@@ -342,7 +350,7 @@
               case 9:
                 return "topic:export";
               case 10:
-                return "topic:gdnative";
+                return "topic:gdextension";
               case 11:
                 return "topic:gdscript";
               case 12:
@@ -377,7 +385,24 @@
                 return "topic:2d";
               case 27:
                 return "topic:3d";
+              case 28:
+                return "topic:particles";
 
+              // Status
+              case 60:
+                return "implementer wanted";
+              case 61:
+                return "requires core feedback";
+
+              // Type
+              case 70:
+                return "usability";
+              case 71:
+                return "performance";
+              case 72:
+                return "breaks compat";
+
+              // Platform
               case 80:
                 return "platform:windows";
               case 81:
@@ -389,7 +414,7 @@
               case 84:
                 return "platform:ios";
               case 85:
-                return "platform:html5";
+                return "platform:web";
               case 86:
                 return "platform:uwp";
 

@@ -36,6 +36,7 @@ def get_label_code(label_name: str) -> int:
     if label_name == "meta":
         return 0
 
+    # Topic
     if label_name == "topic:animation":
         return 1
     if label_name == "topic:assetlib":
@@ -54,7 +55,7 @@ def get_label_code(label_name: str) -> int:
         return 8
     if label_name == "topic:export":
         return 9
-    if label_name == "topic:gdnative":
+    if label_name == "topic:gdextension":
         return 10
     if label_name == "topic:gdscript":
         return 11
@@ -90,7 +91,24 @@ def get_label_code(label_name: str) -> int:
         return 26
     if label_name == "topic:3d":
         return 27
+    if label_name == "topic:particles":
+        return 28
 
+    # Status
+    if label_name == "implementer wanted":
+        return 60
+    if label_name == "requires core feedback":
+        return 61
+
+    # Type
+    if label_name == "usability":
+        return 70
+    if label_name == "performance":
+        return 71
+    if label_name == "breaks compat":
+        return 72
+
+    # Platform
     if label_name == "platform:windows":
         return 80
     if label_name == "platform:macos":
@@ -101,7 +119,7 @@ def get_label_code(label_name: str) -> int:
         return 83
     if label_name == "platform:ios":
         return 84
-    if label_name == "platform:html5":
+    if label_name == "platform:web":
         return 85
     if label_name == "platform:uwp":
         return 86
