@@ -93,6 +93,8 @@ def get_label_code(label_name: str) -> int:
         return 27
     if label_name == "topic:particles":
         return 28
+    if label_name == "topic:multiplayer":
+        return 29
 
     # Status
     if label_name == "implementer wanted":
