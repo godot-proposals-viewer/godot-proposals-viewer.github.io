@@ -143,7 +143,7 @@
                   <td class="score-cell" style="min-width: 200px;">
                     <span x-text="`+${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]}`" :style="`
                       color: var(--green);
-                      font-weight: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] >= 30 ? '700' : '400'};
+                      font-weight: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] >= 40 ? '700' : '400'};
                     `"></span>
                     <span x-text="`-${proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]}`" :style="`
                       color: var(--red);
@@ -151,19 +151,22 @@
                       margin-left: 0.25rem;
                     `"></span>
 
-                    <!-- The bar is fully opaque with 14 +1 reactions or more. -->
+                    <!-- The bar is fully opaque with 20 +1 reactions or more. -->
                     <meter
                       min="0"
                       :value="proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]"
                       :max="proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] + proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]"
-                      :style="`opacity: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] * 7.5}%; margin-left: 0.25rem;`"
+                      :style="`opacity: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] * 5}%; margin-left: 0.25rem;`"
                     ></meter>
 
+                    <!-- The comments bubble is fully opaque with 30 comments or more. -->
                     <span
                       x-show="proposal[KEY_COMMENTS] >= 1"
                       x-text="`💬 ${proposal[KEY_COMMENTS]}`"
-                      :style="`opacity: ${(0.25 + proposal[KEY_COMMENTS] / 40) * 100}%`"
-                    ></span>
+                      :style="`
+                      opacity: ${(0.25 + proposal[KEY_COMMENTS] / 40) * 100}%;
+                      font-weight: ${proposal[KEY_COMMENTS] >= 60 ? '700' : '400'};
+                    `"></span>
                   </td>
                 </tr>
               </template>
