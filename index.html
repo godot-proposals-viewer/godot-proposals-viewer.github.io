@@ -1,26 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="Godot Engine">
-    <meta name="description" content="View the currently open Godot proposals in a convenient way.">
-    <meta name="theme-color" content="#3d8fcc">
-    <title>Godot proposals viewer</title>
-    <link rel="icon" href="favicon.png">
-    <link rel="stylesheet" href="css/main.css">
-    <script defer src="thirdparty/ky.umd.min.js"></script>
-    <script defer src="thirdparty/alpine.min.js"></script>
-  </head>
-  <body>
-    <h1 style="text-align: center">Godot proposals viewer</h1>
-    <p>
-      This page lists all open <a href="https://github.com/godotengine/godot-proposals">Godot proposals</a>
-      with the ability to sort by popularity (highest number of +1 reactions, then lowest number of -1 reactions, then highest number of comments),
-      or by newest or oldest.
-    </p>
-    <p><a href="https://github.com/Calinou/godot-proposals-viewer">Contribute to this proposal viewer on GitHub!</a></p>
-    <main x-data="table()" x-init="
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Godot Engine">
+  <meta name="description" content="View the currently open Godot proposals in a convenient way.">
+  <meta name="theme-color" content="#3d8fcc">
+  <title>Godot proposals viewer</title>
+  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="css/main.css">
+  <script defer src="thirdparty/ky.umd.min.js"></script>
+  <script defer src="thirdparty/alpine.min.js"></script>
+</head>
+
+<body>
+  <h1 style="text-align: center">Godot proposals viewer</h1>
+  <p style="margin-bottom: -0.5em;">
+    This page lists all open <a href="https://github.com/godotengine/godot-proposals">Godot proposals</a>
+    with the ability to sort by popularity (highest number of +1 reactions, then lowest number of -1 reactions, then
+    highest number of comments),
+    or by newest or oldest.
+  </p>
+  <p><a href="https://github.com/Calinou/godot-proposals-viewer">Contribute to this proposal viewer on GitHub!</a></p>
+  <main x-data="table()" x-init="
       $watch('labelFilter', (value) => {
         const url = new URL(window.location.href);
         if (value === '') {
@@ -40,15 +43,17 @@
         history.pushState(null, document.title, url.toString());
       })
       loadProposals()
+      mounted()
     ">
-      <template x-if="proposalsLoaded">
-        <div>
-          <!-- Attract user attention if filter has been changed from the default (All proposals). -->
-          <span :style="`font-weight: ${labelFilter === '' ? 400 : 700}`">Filter:</span>
-          <select x-model="labelFilter">
+    <template x-if="proposalsLoaded">
+      <div>
+        <div class="control-panel">
+          <span class="font-normal" :class="{ 'font-bold': labelFilter !== '' }">Filter:</span>
+          <select class="px-2 py-1 border rounded" x-model="labelFilter">
             <option value="">All proposals</option>
             <option value="0" title="Proposals not related to Godot itself">Meta proposals</option>
-            <option value="60" title="Proposals that are approved and can be implemented by anyone">Implementer wanted</option>
+            <option value="60" title="Proposals that are approved and can be implemented by anyone">Implementer wanted
+            </option>
             <optgroup label="Topic">
               <option value="1">Animation</option>
               <option value="2">Asset library</option>
@@ -95,88 +100,85 @@
               <option value="86" title="Universal Windows Platform">UWP</option>
             </optgroup>
           </select>
-          <span :style="`margin-left: 1rem; font-weight: ${sort === '' ? 400 : 700}`">Sort:</span>
-          <select x-model="sort">
+          <span class="font-normal" :class="{ 'font-bold': sort !== '' }">Sort:</span>
+          <select class="px-2 py-1 border rounded" x-model="sort">
             <option value="" title="Sort proposals by popularity">Popularity</option>
             <option value="newest" title="Sort proposals by newest first">Newest</option>
             <option value="oldest" title="Sort proposals by oldest first">Oldest</option>
           </select>
-          <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${getLabelName(labelFilter)}` : '')}`" target="_blank" rel="noreferrer noopener" class="open-proposals">
+          <a :href="`https://github.com/godotengine/godot-proposals/issues${(labelFilter !== '' ? `/labels/${getLabelName(labelFilter)}` : '')}`"
+            target="_blank" rel="noreferrer noopener" class="open-proposals hover:underline">
             <span x-text="`${proposalsFiltered(true).length} open proposals`"></span>
           </a>
-          <div style="float: right;">
-            <span :style="`font-weight: ${searchQuery === '' ? 400 : 700}`">Search:</span>
-            <input x-model.debounce="searchQuery" type="text" placeholder="Title or author name"></input>
+          <div class="search-container">
+            <span class="font-normal" :class="{ 'font-bold': searchQuery !== '' }">Search:</span>
+            <input class="px-2 py-1 border rounded" x-model.debounce="searchQuery" type="text"
+              placeholder="Title or author name">
           </div>
+        </div>
 
-          <table>
+        <div class="virtual-list-container" @scroll="handleScroll"
+          :style="`height: ${containerHeight}px; overflow-y: auto;`">
+          <table class="header-table">
             <thead class="headers">
               <tr>
-                <!--
-                  Align the Title header to the actual issue title, since the leftmost
-                  part is reserved to the issue ID.
-                -->
                 <td style="padding-left: 4.0625rem">Title</td>
-                <td>Score</td>
+                <td style="min-width: 230px;">Score</td>
               </tr>
             </thead>
-            <tbody>
-              <!-- GitHub issue numbers are unique on a given repository, so it's safe to use as a key. -->
-              <template x-for="proposal in proposalsFiltered()" :key="proposal[KEY_NUMBER]">
-                <tr>
-                  <td>
-                    <span
-                      x-text="`#${proposal[KEY_NUMBER]}`"
-                      style="display: inline-block; min-width: 55px; margin-right: 5px; text-align: right; color: var(--gray); margin-right: 0.25rem"
-                    ></span>
-                    <!-- Highlight proposals opened less than 14 days ago. -->
-                    <span
-                      x-text="(new Date(proposal[KEY_CREATED_AT] * 1000) / 1000) > Date.now() / 1000 - 1209600 ? 'new' : ''"
-                      style="font-weight: 700; color: var(--new-color); margin-right: 0.25rem"
-                    ></span>
-                    <a
-                      :href="`https://github.com/godotengine/godot-proposals/issues/${proposal[KEY_NUMBER]}`"
-                      x-html="formatProposalTitle(proposal[KEY_TITLE])"
-                      :title="`#${proposal[KEY_NUMBER]}&#10;Opened by ${proposal[KEY_USER_LOGIN]} ${Math.floor((Date.now() / 1000 - new Date(proposal[KEY_CREATED_AT])) / 86400)} days ago`"
-                    ></a>
-                  </td>
-                  <td class="score-cell" style="min-width: 200px;">
-                    <span x-text="`+${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]}`" :style="`
-                      color: var(--green);
-                      font-weight: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] >= 40 ? '700' : '400'};
-                    `"></span>
-                    <span x-text="`-${proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]}`" :style="`
-                      color: var(--red);
-                      font-weight: ${proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE] >= 5 ? '700' : '400'};
-                      margin-left: 0.25rem;
-                    `"></span>
-
-                    <!-- The bar is fully opaque with 20 +1 reactions or more. -->
-                    <meter
-                      min="0"
-                      :value="proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]"
-                      :max="proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] + proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]"
-                      :style="`opacity: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] * 5}%; margin-left: 0.25rem;`"
-                    ></meter>
-
-                    <!-- The comments bubble is fully opaque with 30 comments or more. -->
-                    <span
-                      x-show="proposal[KEY_COMMENTS] >= 1"
-                      x-text="`💬 ${proposal[KEY_COMMENTS]}`"
-                      :style="`
-                      opacity: ${(0.25 + proposal[KEY_COMMENTS] / 40) * 100}%;
-                      font-weight: ${proposal[KEY_COMMENTS] >= 60 ? '700' : '400'};
-                    `"></span>
-                  </td>
-                </tr>
-              </template>
-            </tbody>
           </table>
+
+          <div :style="`height: ${totalHeight}px; position: relative;`">
+            <table :style="`position: absolute; width: 100%; transform: translateY(${offsetY}px);`">
+              <tbody>
+                <template x-for="(proposal, localIndex) in visibleProposals" :key="proposal[KEY_NUMBER]">
+                  <tr :class="{
+                      'row-even': getProposalIndex(proposal) % 2 === 1
+                    }">
+                    <td>
+                      <span x-text="`#${proposal[KEY_NUMBER]}`"
+                        style="display: inline-block; min-width: 55px; margin-right: 5px; text-align: right; color: var(--gray); margin-right: 0.25rem"></span>
+                      <!-- Highlight proposals opened less than 14 days ago. -->
+                      <span
+                        x-text="(new Date(proposal[KEY_CREATED_AT] * 1000) / 1000) > Date.now() / 1000 - 1209600 ? 'new' : ''"
+                        style="font-weight: 700; color: var(--new-color); margin-right: 0.25rem"></span>
+                      <a :href="`https://github.com/godotengine/godot-proposals/issues/${proposal[KEY_NUMBER]}`"
+                        x-html="formatProposalTitle(proposal[KEY_TITLE])"
+                        :title="`#${proposal[KEY_NUMBER]}&#10;Opened by ${proposal[KEY_USER_LOGIN]} ${Math.floor((Date.now() / 1000 - new Date(proposal[KEY_CREATED_AT])) / 86400)} days ago`"></a>
+                    </td>
+                    <td class="score-cell" style="min-width: 230px;">
+                      <span x-text="`+${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]}`" :style="`
+                          color: var(--green);
+                          font-weight: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] >= 40 ? '700' : '400'};
+                        `"></span>
+                      <span x-text="`-${proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]}`" :style="`
+                          color: var(--red);
+                          font-weight: ${proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE] >= 5 ? '700' : '400'};
+                          margin-left: 0.25rem;
+                        `"></span>
+
+                      <!-- The bar is fully opaque with 20 +1 reactions or more. -->
+                      <meter min="0" :value="proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]"
+                        :max="proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] + proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]"
+                        :style="`opacity: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] * 5}%; margin-left: 0.25rem;`"></meter>
+
+                      <!-- The comments bubble is fully opaque with 30 comments or more. -->
+                      <span x-show="proposal[KEY_COMMENTS] >= 1" x-text="`💬 ${proposal[KEY_COMMENTS]}`" :style="`
+                          opacity: ${(0.25 + proposal[KEY_COMMENTS] / 40) * 100}%;
+                          font-weight: ${proposal[KEY_COMMENTS] >= 60 ? '700' : '400'};
+                        `"></span>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </template>
-      <template x-if="!proposalsLoaded">
-        <!-- The loading placeholder height matches the current height of the table on desktop as of 2020-11-13. -->
-        <p style="
+      </div>
+    </template>
+    <template x-if="!proposalsLoaded">
+      <!-- The loading placeholder height matches the current height of the table on desktop as of 2020-11-13. -->
+      <p style="
           text-align: center;
           height: 43000px;
           padding-top: 1.75rem;
@@ -184,253 +186,409 @@
           background-image: linear-gradient(180deg, transparent 0%, transparent 50%, hsla(0, 0%, 50%, 0.1) 50%, hsla(0, 0%, 50%, 0.1) 100%);
           background-size: auto 3.5rem;
         ">
-          Loading proposal list, this may take a while...
-        </p>
-      </template>
-    </main>
+        Loading proposal list, this may take a while...
+      </p>
+    </template>
+  </main>
 
-    <script>
-      const searchParams = new URLSearchParams(location.search);
+  <script>
+    const searchParams = new URLSearchParams(location.search);
 
-      // Array indices for JSON keys.
-      const KEY_NUMBER = 0;
-      const KEY_TITLE = 1;
-      const KEY_CREATED_AT = 2;
-      const KEY_USER_LOGIN = 3;
-      const KEY_COMMENTS = 4;
-      const KEY_LABELS = 5;
-      const KEY_REACTIONS = 6;
+    // Array indices for JSON keys.
+    const KEY_NUMBER = 0;
+    const KEY_TITLE = 1;
+    const KEY_CREATED_AT = 2;
+    const KEY_USER_LOGIN = 3;
+    const KEY_COMMENTS = 4;
+    const KEY_LABELS = 5;
+    const KEY_REACTIONS = 6;
 
-      // Array indices for the `REACTIONS` array.
-      const KEY_REACTIONS_POSITIVE = 0;
-      const KEY_REACTIONS_NEGATIVE = 1;
+    // Array indices for the `REACTIONS` array.
+    const KEY_REACTIONS_POSITIVE = 0;
+    const KEY_REACTIONS_NEGATIVE = 1;
 
-      function table() {
-        return {
-          proposals: [],
-          // Becomes `true` if proposals are successfully loaded.
-          proposalsLoaded: false,
-          // The GitHub issue label to filter the list of proposals.
-          labelFilter: searchParams.get('filter') || '',
-          sort: searchParams.get('sort') || '',
-          searchQuery: '',
+    function table() {
+      return {
+        proposals: [],
+        // Becomes `true` if proposals are successfully loaded.
+        proposalsLoaded: false,
+        // The GitHub issue label to filter the list of proposals.
+        labelFilter: searchParams.get('filter') || '',
+        sort: searchParams.get('sort') || '',
+        searchQuery: '',
 
-          proposalsFiltered(excludeSearch) {
-            let sortMethod;
-            if (this.sort == '') {
-              sortMethod = this.sortProposalsPopularity;
-            } else if (this.sort == 'newest') {
-              sortMethod = this.sortProposalsNewest;
-            } else if (this.sort == 'oldest') {
-              sortMethod = this.sortProposalsOldest;
+        // Virtual list properties
+        containerHeight: 800,
+        rowHeight: 30,
+        bufferSize: 5,
+        scrollTop: 0,
+
+        // Add debounce handling
+        scrollTimer: null,
+
+        // Cache filtered data to improve performance
+        filteredProposalsCache: null,
+
+        // Calculate visible proposals
+        get visibleProposals() {
+          const filteredProposals = this.proposalsFiltered();
+          const visibleCount = Math.ceil(this.containerHeight / this.rowHeight) + 1;
+          const totalCount = filteredProposals.length;
+
+          const start = Math.floor(this.scrollTop / this.rowHeight);
+          const startWithBuffer = Math.max(0, start - this.bufferSize * 2);
+          const endWithBuffer = Math.min(totalCount, start + visibleCount + this.bufferSize * 2);
+
+          // Add index information to visible items
+          return filteredProposals.slice(startWithBuffer, endWithBuffer).map((proposal, index) => {
+            proposal._index = startWithBuffer + index;
+            return proposal;
+          });
+        },
+
+        // Calculate total height
+        get totalHeight() {
+          return this.proposalsFiltered().length * this.rowHeight;
+        },
+
+        // Calculate offset
+        get offsetY() {
+          const start = Math.floor(this.scrollTop / this.rowHeight);
+          const startWithBuffer = Math.max(0, start - this.bufferSize * 2);
+          return startWithBuffer * this.rowHeight;
+        },
+
+        // Handle scroll event
+        handleScroll(e) {
+          // Use requestAnimationFrame to optimize scroll performance
+          if (this.scrollTimer) {
+            cancelAnimationFrame(this.scrollTimer);
+          }
+
+          this.scrollTimer = requestAnimationFrame(() => {
+            this.scrollTop = e.target.scrollTop;
+          });
+        },
+
+        proposalsFiltered(excludeSearch) {
+          // Only use cache when not searching
+          if (!this.searchQuery && this.filteredProposalsCache) {
+            return this.filteredProposalsCache;
+          }
+
+          let sortMethod;
+          if (this.sort == '') {
+            sortMethod = this.sortProposalsPopularity;
+          } else if (this.sort == 'newest') {
+            sortMethod = this.sortProposalsNewest;
+          } else if (this.sort == 'oldest') {
+            sortMethod = this.sortProposalsOldest;
+          }
+
+          const filteredProposals = this.proposals.filter((proposal) => {
+            if (this.labelFilter !== '') {
+              if (!proposal[KEY_LABELS].includes(Number(this.labelFilter))) {
+                return false;
+              }
             }
-
-            const filteredProposals = this.proposals.filter((proposal) => {
-              if (this.labelFilter !== '') {
-                if (!proposal[KEY_LABELS].includes(Number(this.labelFilter))) {
-                  return false;
-                }
+            if (this.searchQuery !== '' && !excludeSearch) {
+              // Search in both proposal title and author username.
+              if (
+                !proposal[KEY_TITLE].toLowerCase().includes(this.searchQuery.toLowerCase()) &&
+                !proposal[KEY_USER_LOGIN].toLowerCase().includes(this.searchQuery.toLowerCase())
+              ) {
+                return false;
               }
-              if (this.searchQuery !== '' && !excludeSearch) {
-                // Search in both proposal title and author username.
-                if (
-                    !proposal[KEY_TITLE].toLowerCase().includes(this.searchQuery.toLowerCase()) &&
-                    !proposal[KEY_USER_LOGIN].toLowerCase().includes(this.searchQuery.toLowerCase())
-                ) {
-                  return false;
-                }
-              }
-              return true;
-            });
+            }
+            return true;
+          });
 
-            return filteredProposals.sort(sortMethod);
-          },
+          const sorted = filteredProposals.sort(sortMethod);
+          // Only cache data without search results
+          if (!this.searchQuery) {
+            this.filteredProposalsCache = sorted;
+          }
+          return sorted;
+        },
 
-          sortProposalsPopularity(a, b) {
-            // Sort by number of +1 reactions (descending) *then* -1 reactions
-            // (ascending) *then* number of comments (descending).
-            // This means that if several proposals have the same number of +1
-            // reactions, those with less -1 reactions will be placed at the
-            // top.
-            if (a[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] < b[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]) {
+        sortProposalsPopularity(a, b) {
+          // Sort by number of +1 reactions (descending) *then* -1 reactions
+          // (ascending) *then* number of comments (descending).
+          // This means that if several proposals have the same number of +1
+          // reactions, those with less -1 reactions will be placed at the
+          // top.
+          if (a[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] < b[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]) {
+            return 1;
+          } else if (a[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] === b[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]) {
+            if (a[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE] > b[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]) {
+              return 1;
+            } else if (a[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE] === b[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]) {
+              if (a.comments < b.comments) {
                 return 1;
-              } else if (a[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] === b[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]) {
-                if (a[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE] > b[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]) {
-                  return 1;
-                } else if (a[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE] === b[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]) {
-                  if (a.comments < b.comments) {
-                    return 1;
-                  } else {
-                    return -1;
-                  }
-                } else {
-                  return -1;
-                }
               } else {
                 return -1;
               }
-          },
-
-          sortProposalsNewest(a, b) {
-            if (a[KEY_NUMBER] < b[KEY_NUMBER]) {
-              return 1;
-            }
-
-            return -1;
-          },
-
-          sortProposalsOldest(a, b) {
-            if (a[KEY_NUMBER] > b[KEY_NUMBER]) {
-              return 1;
-            }
-
-            return -1;
-          },
-
-          async loadProposals() {
-            this.proposals = await ky.get('proposals.json').json();
-
-            this.proposalsLoaded = true;
-          },
-
-          /**
-           * Formats a proposal title to use HTML tags where appropriate.
-           * @param string title The proposal's title.
-           * @returns string The proposal title with HTML `<code>` tags instead of backticks.
-           */
-          formatProposalTitle(title) {
-            // Escape HTML.
-            const titleEscaped = title
-              .replace(/&/g, "&amp;")
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;")
-              .replace(/"/g, "&quot;")
-              .replace(/'/g, "&#039;");
-
-            if (titleEscaped.includes("`")) {
-              let isInCodeTag = false;
-              return Array.prototype.map.call(titleEscaped, (character) => {
-                if (character === "`") {
-                  if (isInCodeTag) {
-                    isInCodeTag = false;
-                    return "</code>";
-                  }
-                  isInCodeTag = true;
-                  return "<code>";
-                }
-                return character;
-              }).join('');
             } else {
-              return titleEscaped;
+              return -1;
             }
+          } else {
+            return -1;
+          }
+        },
+
+        sortProposalsNewest(a, b) {
+          if (a[KEY_NUMBER] < b[KEY_NUMBER]) {
+            return 1;
+          }
+
+          return -1;
+        },
+
+        sortProposalsOldest(a, b) {
+          if (a[KEY_NUMBER] > b[KEY_NUMBER]) {
+            return 1;
+          }
+
+          return -1;
+        },
+
+        async loadProposals() {
+          this.proposals = await ky.get('proposals.json').json();
+
+          this.proposalsLoaded = true;
+        },
+
+        /**
+         * Formats a proposal title to use HTML tags where appropriate.
+         * @param string title The proposal's title.
+         * @returns string The proposal title with HTML `<code>` tags instead of backticks.
+         */
+        formatProposalTitle(title) {
+          // Escape HTML.
+          const titleEscaped = title
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+          if (titleEscaped.includes("`")) {
+            let isInCodeTag = false;
+            return Array.prototype.map.call(titleEscaped, (character) => {
+              if (character === "`") {
+                if (isInCodeTag) {
+                  isInCodeTag = false;
+                  return "</code>";
+                }
+                isInCodeTag = true;
+                return "<code>";
+              }
+              return character;
+            }).join('');
+          } else {
+            return titleEscaped;
+          }
+        },
+
+        /**
+         * Returns the name of the GitHub label corresponding to the JSON label code.
+         * NOTE: This must be kept in sync with `get_label_code()` in `build.py`.
+         */
+        getLabelName(labelCode) {
+          switch (Number(labelCode)) {
+            case 0:
+              return "meta";
+
+            // Topic
+            case 1:
+              return "topic:animation";
+            case 2:
+              return "topic:assetlib";
+            case 3:
+              return "topic:audio";
+            case 4:
+              return "topic:buildsystem";
+            case 5:
+              return "topic:codestyle";
+            case 6:
+              return "topic:core";
+            case 7:
+              return "topic:docs";
+            case 8:
+              return "topic:editor";
+            case 9:
+              return "topic:export";
+            case 10:
+              return "topic:gdextension";
+            case 11:
+              return "topic:gdscript";
+            case 12:
+              return "topic:gui";
+            case 13:
+              return "topic:import";
+            case 14:
+              return "topic:input";
+            case 15:
+              return "topic:dotnet";
+            case 16:
+              return "topic:navigation";
+            case 17:
+              return "topic:network";
+            case 18:
+              return "topic:physics";
+            case 19:
+              return "topic:plugin";
+            case 20:
+              return "topic:porting";
+            case 21:
+              return "topic:rendering";
+            case 22:
+              return "topic:shaders";
+            case 23:
+              return "topic:tests";
+            case 24:
+              return "topic:visualscript";
+            case 25:
+              return "topic:xr";
+            case 26:
+              return "topic:2d";
+            case 27:
+              return "topic:3d";
+            case 28:
+              return "topic:particles";
+            case 29:
+              return "topic:multiplayer";
+
+            // Status
+            case 60:
+              return "implementer wanted";
+            case 61:
+              return "requires core feedback";
+
+            // Type
+            case 70:
+              return "usability";
+            case 71:
+              return "performance";
+            case 72:
+              return "breaks compat";
+
+            // Platform
+            case 80:
+              return "platform:windows";
+            case 81:
+              return "platform:macos";
+            case 82:
+              return "platform:linuxbsd";
+            case 83:
+              return "platform:android";
+            case 84:
+              return "platform:ios";
+            case 85:
+              return "platform:web";
+            case 86:
+              return "platform:uwp";
+
+            default:
+              console.error("Unknown label code from JSON: " + labelCode);
+              return "";
+          }
+        },
+
+        // Set appropriate container height on initialization
+        mounted() {
+          // Initial container height setup
+          this.$nextTick(() => {
+            // Wait for DOM to be fully rendered before calculating height
+            setTimeout(() => {
+              this.updateContainerHeight();
+            }, 100);
+          });
+
+          // Listen for window resize events
+          window.addEventListener('resize', () => {
+            this.updateContainerHeight();
+          });
+
+          // Monitor DOM changes to prevent other elements from affecting container position
+          const observer = new MutationObserver(() => {
+            this.updateContainerHeight();
+          });
+
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true
+          });
+
+          // Watch for filter condition changes and clear cache
+          this.$watch('labelFilter', () => {
+            this.filteredProposalsCache = null;
+            this.scrollTop = 0; // Reset scroll position to top
+            this.$nextTick(() => {
+              this.updateContainerHeight();
+            });
+          });
+
+          // Watch for sort condition changes
+          this.$watch('sort', () => {
+            this.filteredProposalsCache = null;
+            this.scrollTop = 0; // Reset scroll position to top
+            this.$nextTick(() => {
+              this.updateContainerHeight();
+            });
+          });
+
+          // Watch for search condition changes
+          this.$watch('searchQuery', () => {
+            this.filteredProposalsCache = null;
+            this.scrollTop = 0; // Reset scroll position to top
+            this.$nextTick(() => {
+              this.updateContainerHeight();
+            });
+          });
+        },
+
+        updateContainerHeight() {
+          const container = document.querySelector('.virtual-list-container');
+          if (container) {
+            const rect = container.getBoundingClientRect();
+            const newHeight = window.innerHeight - rect.top - 20;
+
+            // Ensure height is a multiple of row height
+            const adjustedHeight = Math.floor(newHeight / this.rowHeight) * this.rowHeight;
+
+            // Only update when height actually changes
+            if (this.containerHeight !== adjustedHeight) {
+              this.containerHeight = adjustedHeight;
+
+              this.scrollTimer = requestAnimationFrame(() => {
+                this.scrollTop = container.scrollTop;
+              });
+            }
+          }
+        },
+
+        // Get proposal index in the complete list
+        getProposalIndex(proposal) {
+          return proposal._index ?? proposal[KEY_NUMBER];
+        },
+
+        // Watch for filter condition changes and clear cache
+        $watch: {
+          labelFilter() {
+            this.filteredProposalsCache = null;
           },
-
-          /**
-           * Returns the name of the GitHub label corresponding to the JSON label code.
-           * NOTE: This must be kept in sync with `get_label_code()` in `build.py`.
-           */
-          getLabelName(labelCode) {
-            switch (Number(labelCode)) {
-              case 0:
-                return "meta";
-
-              // Topic
-              case 1:
-                return "topic:animation";
-              case 2:
-                return "topic:assetlib";
-              case 3:
-                return "topic:audio";
-              case 4:
-                return "topic:buildsystem";
-              case 5:
-                return "topic:codestyle";
-              case 6:
-                return "topic:core";
-              case 7:
-                return "topic:docs";
-              case 8:
-                return "topic:editor";
-              case 9:
-                return "topic:export";
-              case 10:
-                return "topic:gdextension";
-              case 11:
-                return "topic:gdscript";
-              case 12:
-                return "topic:gui";
-              case 13:
-                return "topic:import";
-              case 14:
-                return "topic:input";
-              case 15:
-                return "topic:dotnet";
-              case 16:
-                return "topic:navigation";
-              case 17:
-                return "topic:network";
-              case 18:
-                return "topic:physics";
-              case 19:
-                return "topic:plugin";
-              case 20:
-                return "topic:porting";
-              case 21:
-                return "topic:rendering";
-              case 22:
-                return "topic:shaders";
-              case 23:
-                return "topic:tests";
-              case 24:
-                return "topic:visualscript";
-              case 25:
-                return "topic:xr";
-              case 26:
-                return "topic:2d";
-              case 27:
-                return "topic:3d";
-              case 28:
-                return "topic:particles";
-              case 29:
-                return "topic:multiplayer";
-
-              // Status
-              case 60:
-                return "implementer wanted";
-              case 61:
-                return "requires core feedback";
-
-              // Type
-              case 70:
-                return "usability";
-              case 71:
-                return "performance";
-              case 72:
-                return "breaks compat";
-
-              // Platform
-              case 80:
-                return "platform:windows";
-              case 81:
-                return "platform:macos";
-              case 82:
-                return "platform:linuxbsd";
-              case 83:
-                return "platform:android";
-              case 84:
-                return "platform:ios";
-              case 85:
-                return "platform:web";
-              case 86:
-                return "platform:uwp";
-
-              default:
-                console.error("Unknown label code from JSON: " + labelCode);
-                return "";
-            }
+          sort() {
+            this.filteredProposalsCache = null;
+          },
+          searchQuery() {
+            this.filteredProposalsCache = null;
           }
         }
       }
-    </script>
-  </body>
+    }
+  </script>
+</body>
+
 </html>
