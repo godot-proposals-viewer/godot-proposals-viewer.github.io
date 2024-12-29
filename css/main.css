@@ -7,6 +7,7 @@
   --link-color: hsl(210, 100%, 45%);
   --link-underline-color: hsla(210, 90%, 50%, 0.3);
   --new-color: hsl(15, 90%, 50%);
+  --border-color: hsl(0, 0%, 85%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,48 +20,105 @@
     --link-color: hsl(200, 50%, 60%);
     --link-underline-color: hsla(200, 50%, 60%, 0.3);
     --new-color: hsl(15, 70%, 60%);
+    --border-color: hsl(0, 0%, 30%);
   }
 }
 
-*:focus {
-  /* More visible outline for better keyboard navigation. */
-  outline: 0.125rem solid hsl(220, 100%, 62.5%);
-  /* Make the outline always appear above other elements. */
-  /* Otherwise, one of its sides can be hidden by tabs in the Download and More layouts. */
-  position: relative;
-}
-
-html {
+select, input {
   background-color: var(--background-color);
   color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  outline: none;
+}
+
+select:focus, input:focus {
+  border-color: var(--link-color);
+  box-shadow: 0 0 0 2px var(--link-underline-color);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
 }
 
 body {
   max-width: 1200px;
-  margin: 0 auto 2rem;
+  margin: 0 auto;
   padding: 0 0.5rem;
-  /* Use a modern font stack inspired by Bootstrap 4. */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;
+}
+
+main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+main > div {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.control-panel {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.search-container {
+  margin-left: auto;
+}
+
+.virtual-list-container {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow-x: hidden;
+  will-change: transform;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 0;
+}
+
+.virtual-list-container table {
+  margin: 0;
+  border: none;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.virtual-list-container tr {
+  height: 30px;
+  box-sizing: border-box;
+}
+
+.virtual-list-container tr.row-even {
+  background-color: hsla(0, 0%, 50%, 0.1);
+}
+
+.virtual-list-container tr:hover {
+  background-color: hsla(0, 0%, 50%, 0.075);
+}
+
+.virtual-list-container tr.row-even:hover {
+  background-color: hsla(0, 0%, 50%, 0.175);
 }
 
 thead {
   font-weight: bold;
 }
 
-tr:hover {
-  background-color: hsla(0, 0%, 50%, 0.075);
-}
-
-tr:nth-child(even) {
-  background-color: hsla(0, 0%, 50%, 0.1);
-}
-
-tr:nth-child(even):hover {
-  background-color: hsla(0, 0%, 50%, 0.175);
-}
-
-/* Make proposal titles always take up as much width as they can. */
 td:nth-child(1) {
   width: 100%;
 }
@@ -82,10 +140,7 @@ a:active {
 code {
   background-color: hsla(0, 0%, 60%, 0.2);
   padding: 0.125rem;
-}
-
-.open-proposals {
-  margin-left: 1rem;
+  border-radius: 0.25rem;
 }
 
 @media only screen and (max-width: 650px) {
