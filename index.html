@@ -140,7 +140,8 @@
                       :title="`#${proposal[KEY_NUMBER]}&#10;Opened by ${proposal[KEY_USER_LOGIN]} ${Math.floor((Date.now() / 1000 - new Date(proposal[KEY_CREATED_AT])) / 86400)} days ago`"
                     ></a>
                   </td>
-                  <td class="score-cell" style="min-width: 200px;">
+                  <!-- Set minimum width to allow proposals with 100+ positive votes, 10+ negative votes and 100+ comments to display the score cell on a single line. -->
+                  <td class="score-cell" style="min-width: 210px;">
                     <span x-text="`+${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]}`" :style="`
                       color: var(--green);
                       font-weight: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] >= 40 ? '700' : '400'};
