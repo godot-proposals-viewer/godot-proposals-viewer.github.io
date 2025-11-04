@@ -75,7 +75,7 @@ def get_label_code(label_name: str) -> int:
         return 18
     if label_name == "topic:plugin":
         return 19
-    if label_name == "topic:porting":
+    if label_name == "topic:platforms":
         return 20
     if label_name == "topic:rendering":
         return 21
