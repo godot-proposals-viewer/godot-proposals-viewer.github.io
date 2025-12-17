@@ -1,2 +1,10 @@
-# JSON data with proposals from GitHub API
+# Python virtualenv.
+venv/
+
+.mypy_cache/
+
+# Environment variables (contains credentials).
+.env
+
+# JSON file output by running `build.py`.
 proposals.json

@@ -19,7 +19,7 @@
       with the ability to sort by popularity (highest number of 👍 reactions, then lowest number of 👎 reactions, then highest number of comments),
       or by newest or oldest.
     </p>
-    <p><a href="https://github.com/Calinou/godot-proposals-viewer">Contribute to this proposal viewer on GitHub!</a></p>
+    <p><a href="https://github.com/godot-proposals-viewer/godot-proposals-viewer.github.io">Contribute to this proposal viewer on GitHub!</a></p>
     <main x-data="table()" x-init="
       $watch('labelFilter', (value) => {
         const url = new URL(window.location.href);
@@ -91,8 +91,9 @@
               <option value="82">Linux/*BSD</option>
               <option value="83">Android</option>
               <option value="84">iOS</option>
-              <option value="85">Web</option>
-              <option value="86" title="Universal Windows Platform">UWP</option>
+              <option value="85">visionOS</option>
+              <option value="86">Web</option>
+              <option value="87" title="Universal Windows Platform">UWP</option>
             </optgroup>
           </select>
           <span :style="`margin-left: 1rem; font-weight: ${sort === '' ? 400 : 700}`">Sort:</span>
@@ -361,38 +362,40 @@
               case 12:
                 return "topic:gui";
               case 13:
-                return "topic:import";
+                return "topic:i18n";
               case 14:
-                return "topic:input";
+                return "topic:import";
               case 15:
-                return "topic:dotnet";
+                return "topic:input";
               case 16:
-                return "topic:navigation";
+                return "topic:dotnet";
               case 17:
-                return "topic:network";
+                return "topic:navigation";
               case 18:
-                return "topic:physics";
+                return "topic:network";
               case 19:
-                return "topic:plugin";
+                return "topic:physics";
               case 20:
-                return "topic:platforms";
+                return "topic:plugin";
               case 21:
-                return "topic:rendering";
+                return "topic:platforms";
               case 22:
-                return "topic:shaders";
+                return "topic:rendering";
               case 23:
-                return "topic:tests";
+                return "topic:shaders";
               case 24:
-                return "topic:visualscript";
+                return "topic:tests";
               case 25:
-                return "topic:xr";
+                return "topic:visualscript";
               case 26:
-                return "topic:2d";
+                return "topic:xr";
               case 27:
-                return "topic:3d";
+                return "topic:2d";
               case 28:
-                return "topic:particles";
+                return "topic:3d";
               case 29:
+                return "topic:particles";
+              case 30:
                 return "topic:multiplayer";
 
               // Status
@@ -421,8 +424,10 @@
               case 84:
                 return "platform:ios";
               case 85:
-                return "platform:web";
+                return "platform:visionos";
               case 86:
+                return "platform:web";
+              case 87:
                 return "platform:uwp";
 
               default:

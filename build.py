@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright © 2020-present Hugo Locurcio and contributors
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,12 +19,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import json
+import os
+from typing import Any, Dict
+
+from dotenv import load_dotenv
+from gql import Client, gql
+from gql.transport.aiohttp import AIOHTTPTransport
+from typing_extensions import Final
+
 import dateutil.parser as dateutil_parser
 import json
 import os
 from typing import Any, List
-
-import requests
 
 
 def get_label_code(label_name: str) -> int:
@@ -61,40 +68,42 @@ def get_label_code(label_name: str) -> int:
         return 11
     if label_name == "topic:gui":
         return 12
-    if label_name == "topic:import":
+    if label_name == "topic:i18n":
         return 13
-    if label_name == "topic:input":
+    if label_name == "topic:import":
         return 14
-    if label_name == "topic:dotnet":
+    if label_name == "topic:input":
         return 15
-    if label_name == "topic:navigation":
+    if label_name == "topic:dotnet":
         return 16
-    if label_name == "topic:network":
+    if label_name == "topic:navigation":
         return 17
-    if label_name == "topic:physics":
+    if label_name == "topic:network":
         return 18
-    if label_name == "topic:plugin":
+    if label_name == "topic:physics":
         return 19
-    if label_name == "topic:platforms":
+    if label_name == "topic:plugin":
         return 20
-    if label_name == "topic:rendering":
+    if label_name == "topic:platforms":
         return 21
-    if label_name == "topic:shaders":
+    if label_name == "topic:rendering":
         return 22
-    if label_name == "topic:tests":
+    if label_name == "topic:shaders":
         return 23
-    if label_name == "topic:visualscript":
+    if label_name == "topic:tests":
         return 24
-    if label_name == "topic:xr":
+    if label_name == "topic:visualscript":
         return 25
-    if label_name == "topic:2d":
+    if label_name == "topic:xr":
         return 26
-    if label_name == "topic:3d":
+    if label_name == "topic:2d":
         return 27
-    if label_name == "topic:particles":
+    if label_name == "topic:3d":
         return 28
-    if label_name == "topic:multiplayer":
+    if label_name == "topic:particles":
         return 29
+    if label_name == "topic:multiplayer":
+        return 30
 
     # Status
     if label_name == "implementer wanted":
@@ -121,14 +130,14 @@ def get_label_code(label_name: str) -> int:
         return 83
     if label_name == "platform:ios":
         return 84
-    if label_name == "platform:web":
+    if label_name == "platform:visionos":
         return 85
-    if label_name == "platform:uwp":
+    if label_name == "platform:web":
         return 86
+    if label_name == "platform:uwp":
+        return 87
 
-    print(
-        f"WARNING: Unknown label name (no code assigned in `get_label_code()`): {label_name}"
-    )
+    print(f"WARNING: Unknown label name (no code assigned in `get_label_code()`): {label_name}")
     return -1
 
 
@@ -137,59 +146,105 @@ def main() -> None:
     # so that the script can be run from any location.
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-    print("[*] Fetching proposal JSON pages...")
+    load_dotenv()
 
-    all_proposals: List[List[Any]] = []
+    transport: Final = AIOHTTPTransport(
+        url="https://api.github.com/graphql",
+        headers={"Authorization": f"Bearer {os.getenv('GODOT_PROPOSALS_VIEWER_GITHUB_TOKEN')}"},
+        ssl=True,
+    )
+    client: Final = Client(transport=transport, fetch_schema_from_transport=True)
 
-    page = 1
+    cursor = None
+
+    proposals: List[List[Any]] = []
+
     # We'll set the number of pages to a "finite" number once we make a request.
-    num_pages = 10000
+    num_queries = 10000
 
-    while page <= num_pages:
-        if num_pages == 10000:
-            print(f"    Requesting batch of proposals {page}...")
-        else:
-            print(f"    Requesting batch of proposals {page}/{num_pages}...")
-        request = requests.get(
-            f"https://api.github.com/repos/godotengine/godot-proposals/issues?state=open&per_page=100&page={page}",
-            headers={"Accept": "application/vnd.github.squirrel-girl-preview"},
+    # Get all proposals.
+    # TODO: Retry requests a few times if they fail.
+    for i in range(num_queries):
+        print(f"Requesting batch of proposals {i + 1}...")
+        query = gql(
+            """
+query ($cursor: String) {
+    repository(owner: "godotengine", name: "godot-proposals") {
+        issues(last: 100, states: OPEN, orderBy: { direction: ASC, field: CREATED_AT }, before: $cursor) {
+            edges {
+                cursor
+                node {
+                    number
+                    title
+                    createdAt
+                    author {
+                        login
+                    }
+                    labels(first: 100) {
+                        nodes {
+                            name
+                        }
+                    }
+                    reactionGroups {
+                        content
+                        users {
+                            totalCount
+                        }
+                    }
+                    comments {
+                        totalCount
+                    }
+                }
+            }
+        }
+    }
+}
+            """
         )
 
-        if num_pages == 10000:
-            # We don't know the number of pages yet, so figure it out.
-            links_in_header = request.headers["Link"].split(",")
-            for link in links_in_header:
-                if '"last"' in link:
-                    # Get the page number after the `page` query parameter.
-                    num_pages = int(link.split("&page")[1][1:3])
+        # We're querying the first page, so we don't need to supply a valid cursor.
+        # GQL will take care of not submitting the variable if it's set to `None`.
+        result = client.execute(query, variable_values={"cursor": cursor})
+        if result["repository"]["issues"]["edges"] != []:
+            for edge in result["repository"]["issues"]["edges"]:
+                proposal = edge["node"]
+                thumbs_up_reactions = 0
+                thumbs_down_reactions = 0
+                for reaction_group in proposal["reactionGroups"]:
+                    if reaction_group["content"] == "THUMBS_UP":
+                        thumbs_up_reactions = reaction_group["users"]["totalCount"]
+                    if reaction_group["content"] == "THUMBS_DOWN":
+                        thumbs_down_reactions = reaction_group["users"]["totalCount"]
 
-        request_dict = json.loads(request.text)
+                # Only include fields we use on the frontend.
+                # Use an optimized array form to avoid including dozens of thousands
+                # of string keys in the JSON.
+                # Store the creation date as an UNIX timestamp integer as it's smaller than an ISO 8601 string.
+                proposals.append(
+                    [
+                        proposal["number"],
+                        proposal["title"],
+                        int(dateutil_parser.parse(proposal["createdAt"]).strftime("%s")),
+                        proposal["author"]["login"] if proposal["author"] is not None else "ghost",
+                        proposal["comments"]["totalCount"],
+                        [get_label_code(label["name"]) for label in proposal["labels"]["nodes"]],
+                        [thumbs_up_reactions, thumbs_down_reactions],
+                    ]
+                )
 
-        for proposal in request_dict:
-            # Only include fields we use on the frontend.
-            # Use an optimized array form to avoid including dozens of thousands
-            # of string keys in the JSON.
-            # Store the creation date as an UNIX timestamp integer as it's smaller than an ISO 8601 string.
-            all_proposals.append(
-                [
-                    proposal["number"],
-                    proposal["title"],
-                    int(dateutil_parser.parse(proposal["created_at"]).strftime("%s")),
-                    proposal["user"]["login"],
-                    proposal["comments"],
-                    [get_label_code(label["name"]) for label in proposal["labels"]],
-                    [proposal["reactions"]["+1"], proposal["reactions"]["-1"]],
-                ]
-            )
+            # Get the cursor value of the last returned item, as we need it for subsequent requests (pagination).
+            cursor = result["repository"]["issues"]["edges"][0]["cursor"]
+        else:
+            print("No more proposals to fetch.")
+            break
 
-        page += 1
+    print("Saving proposals.json...")
 
-    print("[*] Saving proposals.json...")
-
+    output_path: Final = "proposals.json"
     with open("proposals.json", "w") as file:
-        json.dump(all_proposals, file)
+        json.dump(proposals, file)
 
-    print("[*] Success!")
+    print(f"Wrote proposals to: {output_path}")
 
 
 if __name__ == "__main__":
