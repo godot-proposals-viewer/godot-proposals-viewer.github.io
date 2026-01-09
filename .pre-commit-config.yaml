@@ -1,13 +1,32 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
+      # Generic hooks, relevant for any language.
+      - id: forbid-new-submodules
       - id: fix-byte-order-marker
       - id: end-of-file-fixer
       - id: trailing-whitespace
-
       - id: mixed-line-ending
-        args: [--fix=lf]
+        args:
+          - --fix=lf
+      - id: detect-private-key
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-vcs-permalinks
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
+      - id: check-yaml
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: check-case-conflict
+      - id: check-symlinks
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 7.0.0
+    hooks:
+      - id: isort
 
   - repo: https://github.com/PyCQA/flake8
     rev: 7.3.0

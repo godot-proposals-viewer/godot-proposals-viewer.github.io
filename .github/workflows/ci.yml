@@ -34,6 +34,7 @@ jobs:
       - name: Static checks
         if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
         run: |
+          pip install pre-commit
           pre-commit run --all-files
 
       - name: Fetch list of proposals

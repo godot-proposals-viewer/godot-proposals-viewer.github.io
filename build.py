@@ -23,12 +23,11 @@ import json
 import os
 from typing import Any, List
 
+import dateutil.parser as dateutil_parser
 from dotenv import load_dotenv
 from gql import Client, gql
 from gql.transport.aiohttp import AIOHTTPTransport
 from typing_extensions import Final
-
-import dateutil.parser as dateutil_parser
 
 
 def get_label_code(label_name: str) -> int:
