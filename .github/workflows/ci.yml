@@ -31,6 +31,11 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Static checks
+        if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+        run: |
+          pre-commit run --all-files
+
       - name: Fetch list of proposals
         run: |
           pip install -r requirements.txt
