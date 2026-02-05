@@ -5,7 +5,9 @@
   --red: hsl(5, 50%, 35%);
   --gray: hsl(0, 0%, 50%);
   --link-color: hsl(210, 100%, 45%);
+  --link-color-visited: hsl(255, 65%, 54%);
   --link-underline-color: hsla(210, 90%, 50%, 0.3);
+  --link-underline-color-visited: hsla(255, 60%, 54%, 0.3);
   --new-color: hsl(15, 90%, 50%);
 }
 
@@ -17,7 +19,9 @@
     --red: hsl(5, 50%, 55%);
     --gray: hsl(0, 0%, 55%);
     --link-color: hsl(200, 50%, 60%);
+    --link-color-visited: hsl(258, 82%, 76%);
     --link-underline-color: hsla(200, 50%, 60%, 0.3);
+    --link-underline-color-visited: hsla(258, 82%, 76%, 0.3);
     --new-color: hsl(15, 70%, 60%);
   }
 }
@@ -76,6 +80,20 @@ a:hover {
 }
 
 a:active {
+  filter: brightness(82.5%);
+}
+
+a:visited {
+  color: var(--link-color-visited);
+  text-decoration-color: var(--link-underline-color-visited);
+  text-decoration-thickness: 0.125rem;
+}
+
+a:visited:hover {
+  filter: brightness(117.5%);
+}
+
+a:visited:active {
   filter: brightness(82.5%);
 }
 
