@@ -143,33 +143,16 @@
                     ></a>
                   </td>
                   <!-- Set minimum width to allow proposals with 100+ positive votes, 10+ negative votes and 100+ comments to display the score cell on a single line. -->
-                  <td class="score-cell" style="min-width: 210px;">
-                    <span x-text="`+${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]}`" :style="`
-                      color: var(--green);
-                      font-weight: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] >= 40 ? '700' : '400'};
-                    `"></span>
-                    <span x-text="`-${proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]}`" :style="`
-                      color: var(--red);
-                      font-weight: ${proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE] >= 5 ? '700' : '400'};
-                      margin-left: 0.25rem;
-                    `"></span>
-
-                    <!-- The bar is fully opaque with 20 +1 reactions or more. -->
-                    <meter
-                      min="0"
-                      :value="proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]"
-                      :max="proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] + proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]"
-                      :style="`opacity: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] * 5}%; margin-left: 0.25rem;`"
-                    ></meter>
+                  <td class="score-cell" style="min-width: 200px;">
+                    <span x-text="`+${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]}`" class="upvotes-count"></span>
+                    <span x-text="`-${proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]}`" class="downvotes-count"></span>
 
                     <!-- The comments bubble is fully opaque with 30 comments or more. -->
                     <span
                       x-show="proposal[KEY_COMMENTS] >= 1"
-                      x-text="`💬 ${proposal[KEY_COMMENTS]}`"
-                      :style="`
-                      opacity: ${(0.25 + proposal[KEY_COMMENTS] / 40) * 100}%;
-                      font-weight: ${proposal[KEY_COMMENTS] >= 60 ? '700' : '400'};
-                    `"></span>
+                      x-text="`${proposal[KEY_COMMENTS]} 💬`"
+                      class="comments-count">
+                    </span>
                   </td>
                 </tr>
               </template>
