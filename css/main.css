@@ -91,7 +91,7 @@ code {
 span.upvotes-count {
   color: var(--green);
   font-weight: 400;
-  display:inline-block;
+  display: inline-block;
   min-width: 3.5em;
   text-align: right;
 }
@@ -100,14 +100,14 @@ span.downvotes-count {
   color: var(--red);
   font-weight: 400;
   margin-left: 0.25rem;
-  display:inline-block;
+  display: inline-block;
   min-width: 2em;
   text-align: right;
 }
 
 span.comments-count {
   font-weight: 400;
-  display:inline-block;
+  display: inline-block;
   min-width: 5em;
   text-align: right;
 }
