@@ -15,9 +15,10 @@
   <body>
     <h1 style="text-align: center">Godot proposals viewer</h1>
     <p>
-      This page lists all open <a href="https://github.com/godotengine/godot-proposals">Godot proposals</a>
-      with the ability to sort by popularity (highest number of 👍 reactions, then lowest number of 👎 reactions, then highest number of comments),
-      or by newest or oldest.
+      This page lists open <a href="https://github.com/godotengine/godot-proposals">Godot proposals</a>,
+      with the ability to sort and filter in convenient ways.
+      For performance reasons, this page does not show all proposals at once by default. You can change this
+      using the selectors below.
     </p>
     <p><a href="https://github.com/godot-proposals-viewer/godot-proposals-viewer.github.io">Contribute to this proposal viewer on GitHub!</a></p>
     <main x-data="table()" x-init="
@@ -97,9 +98,16 @@
               <option value="87" title="Universal Windows Platform">UWP</option>
             </optgroup>
           </select>
+          <select x-model="countFilter">
+            <option value="" title="Show the first 200 only">Show 200</option>
+            <option value="first2000" title="Show the first 2000 only">Show 2000</option>
+            <option value="all" title="Show all">Show all</option>
+          </select>
           <span :style="`margin-left: 1rem; font-weight: ${sort === '' ? 400 : 700}`">Sort:</span>
           <select x-model="sort">
-            <option value="" title="Sort proposals by popularity">Popularity</option>
+            <option value="" title="Sort proposals by recent popularity">New and hot</option>
+            <option value="popularity" title="Sort proposals by regularized average score">Popularity</option>
+            <option value="upvotes" title="Sort proposals by upvotes">Most upvotes</option>
             <option value="newest" title="Sort proposals by newest first">Newest</option>
             <option value="oldest" title="Sort proposals by oldest first">Oldest</option>
           </select>
@@ -208,6 +216,16 @@
       const KEY_REACTIONS_POSITIVE = 0;
       const KEY_REACTIONS_NEGATIVE = 1;
 
+      function calculateHotScore(reactionsPositive, reactionsNegative, postTime) {
+        // Hotness score, akin to the algorithm used by reddit.
+        const currentTime = Date.now();
+        const timeSincePost = (currentTime - new Date(postTime * 1000)) / 3600000; // Convert from ms to hours
+        const x = 5; // Decay factor, increase to let older posts disappear faster
+
+        // Regularize the time since introduction; about a week leeway fits our incoming proposal rate.
+        return (reactionsPositive - reactionsNegative) / Math.pow(timeSincePost + 24 * 7, x);
+      }
+
       function table() {
         return {
           proposals: [],
@@ -215,20 +233,12 @@
           proposalsLoaded: false,
           // The GitHub issue label to filter the list of proposals.
           labelFilter: searchParams.get('filter') || '',
+          countFilter: searchParams.get('countFilter') || '',
           sort: searchParams.get('sort') || '',
           searchQuery: '',
 
           proposalsFiltered(excludeSearch) {
-            let sortMethod;
-            if (this.sort == '') {
-              sortMethod = this.sortProposalsPopularity;
-            } else if (this.sort == 'newest') {
-              sortMethod = this.sortProposalsNewest;
-            } else if (this.sort == 'oldest') {
-              sortMethod = this.sortProposalsOldest;
-            }
-
-            const filteredProposals = this.proposals.filter((proposal) => {
+            let filteredProposals = this.proposals.filter((proposal) => {
               if (this.labelFilter !== '') {
                 if (!proposal[KEY_LABELS].includes(Number(this.labelFilter))) {
                   return false;
@@ -246,10 +256,65 @@
               return true;
             });
 
-            return filteredProposals.sort(sortMethod);
+            if (this.sort === '') {
+              filteredProposals = filteredProposals.sort(this.sortProposalsNewAndHot);
+            } else if (this.sort === 'popularity') {
+              filteredProposals = filteredProposals.sort(this.sortProposalsPopularity);
+            } else if (this.sort === 'upvotes') {
+              filteredProposals = filteredProposals.sort(this.sortProposalsUpvotes);
+            } else if (this.sort === 'newest') {
+              filteredProposals = filteredProposals.sort(this.sortProposalsNewest);
+            } else if (this.sort === 'oldest') {
+              filteredProposals = filteredProposals.sort(this.sortProposalsOldest);
+            }
+
+            // Mostly useful because we have so many poposals, rendering all can lag the website.
+            if (this.countFilter !== "all") {
+              if (this.countFilter === "") {
+                filteredProposals = filteredProposals.slice(0, 200)
+              }
+              else if (this.countFilter === "first2000") {
+                filteredProposals = filteredProposals.slice(0, 2000)
+              }
+            }
+
+            return filteredProposals;
+          },
+
+        sortProposalsNewAndHot(a, b) {
+            // Sort with `calculateHotScore` output.
+            if (a.hotness < b.hotness) {
+              return 1;
+            } else if (a.hotness > b.hotness) {
+              return -1;
+            } else {
+              if (a.comments < b.comments) {
+                return 1;
+              } else {
+                return -1;
+              }
+            }
           },
 
           sortProposalsPopularity(a, b) {
+            // Sort by ratio of upvotes to downvotes, with some regularization for low vote counts.
+            let aScore = (a[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] + 30) / (a[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE] + 30);
+            let bScore = (b[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] + 30) / (b[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE] + 30);
+
+            if (aScore < bScore) {
+                return 1;
+              } else if (aScore === bScore) {
+                if (a.comments < b.comments) {
+                  return 1;
+                } else {
+                  return -1;
+                }
+              } else {
+                return -1;
+              }
+          },
+
+          sortProposalsUpvotes(a, b) {
             // Sort by number of +1 reactions (descending) *then* -1 reactions
             // (ascending) *then* number of comments (descending).
             // This means that if several proposals have the same number of +1
@@ -292,6 +357,9 @@
 
           async loadProposals() {
             this.proposals = await ky.get('proposals.json').json();
+            for (let a of this.proposals) {
+              a.hotness = calculateHotScore(a[KEY_REACTIONS][KEY_REACTIONS_POSITIVE], a[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE], a[KEY_CREATED_AT])
+            }
 
             this.proposalsLoaded = true;
           },
