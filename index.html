@@ -159,7 +159,7 @@
                       min="0"
                       :value="proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE]"
                       :max="proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] + proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]"
-                      :style="`opacity: ${proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] * 5}%; margin-left: 0.25rem;`"
+                      :style="`opacity: ${(proposal[KEY_REACTIONS][KEY_REACTIONS_POSITIVE] + proposal[KEY_REACTIONS][KEY_REACTIONS_NEGATIVE]) * 5}%; margin-left: 0.25rem;`"
                     ></meter>
 
                     <!-- The comments bubble is fully opaque with 30 comments or more. -->
