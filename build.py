@@ -204,13 +204,13 @@ query ($cursor: String) {
         if result["repository"]["issues"]["edges"] != []:
             for edge in result["repository"]["issues"]["edges"]:
                 proposal = edge["node"]
-                thumbs_up_reactions = 0
-                thumbs_down_reactions = 0
+                up_reactions = 0
+                down_reactions = 0
                 for reaction_group in proposal["reactionGroups"]:
                     if reaction_group["content"] == "THUMBS_UP":
-                        thumbs_up_reactions = reaction_group["users"]["totalCount"]
-                    if reaction_group["content"] == "THUMBS_DOWN":
-                        thumbs_down_reactions = reaction_group["users"]["totalCount"]
+                        up_reactions += reaction_group["users"]["totalCount"]
+                    if reaction_group["content"] == "THUMBS_DOWN" or reaction_group["content"] == "CONFUSED":
+                        down_reactions += reaction_group["users"]["totalCount"]
 
                 # Only include fields we use on the frontend.
                 # Use an optimized array form to avoid including dozens of thousands
@@ -224,7 +224,7 @@ query ($cursor: String) {
                         proposal["author"]["login"] if proposal["author"] is not None else "ghost",
                         proposal["comments"]["totalCount"],
                         [get_label_code(label["name"]) for label in proposal["labels"]["nodes"]],
-                        [thumbs_up_reactions, thumbs_down_reactions],
+                        [up_reactions, down_reactions],
                     ]
                 )
 
