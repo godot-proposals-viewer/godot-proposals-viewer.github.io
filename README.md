@@ -33,8 +33,8 @@ Before you can test locally, you need a `proposals.json` file. The easiest way
 to get it is to download it from the latest automated fetch. To do this, visit
 this repository's [Actions](https://github.com/godot-proposals-viewer/godot-proposals-viewer.github.io/actions),
 click the latest, and download the linked artifact. Alternatively, you can use
-`python build.py` to fetch and create your own (although this may require a
-GitHub graphql token).
+`python build.py` to fetch and create your own (although this requires a
+GitHub GraphQL token; see [`.env.example`](.env.example)).
 
 You can try the website locally by launching a local web server, for example:
 
