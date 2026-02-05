@@ -3,6 +3,9 @@ venv/
 
 .mypy_cache/
 
+# IDEs
+.idea/
+
 # Environment variables (contains credentials).
 .env
 

@@ -16,16 +16,31 @@ View the current Godot proposals in a convenient way.
 Every day, there's a continuous integration step that runs the tasks above to
 keep the page up-to-date.
 
-## Development
+## Local development
 
-Follow these instructions to set up this site locally for development purposes:
+First, make sure you have [Python](https://www.python.org) installed (3.6 or later).
 
-- Make sure you have Python 3.6 or later and pip.
-- Install dependencies by running `pip install -r requirements.txt`.
-- Run `build.py` to fetch proposals from the GitHub API. It makes a few dozen
-  requests, which means you don't need to set up API authentication to bypass
-  GitHub's 60 requests/hour limit.
-- Start a local web server in the root directory then browse `index.html`.
+You could install the requirements directly from `requirements.txt`, but we recommend
+you use a virtual environment to do it:
+
+```shell
+virtualenv .venv --python python3
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+Before you can test locally, you need a `proposals.json` file. The easiest way
+to get it is to download it from the latest automated fetch. To do this, visit
+this repository's [Actions](https://github.com/godot-proposals-viewer/godot-proposals-viewer.github.io/actions),
+click the latest, and download the linked artifact. Alternatively, you can use
+`python build.py` to fetch and create your own (although this requires a
+GitHub GraphQL token; see [`.env.example`](.env.example)).
+
+You can try the website locally by launching a local web server, for example:
+
+```shell
+python -m http.server 8000
+```
 
 ## License
 
