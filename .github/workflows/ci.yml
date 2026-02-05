@@ -43,7 +43,7 @@ jobs:
           GODOT_PROPOSALS_VIEWER_GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" ./build.py
           # Deploy all the files we need in the generated site to the `dist/` folder.
           mkdir -p dist/
-          cp -r css/ thirdparty/ proposals.json .nojekyll index.html favicon.png dist/
+          cp -r thirdparty/ proposals.json .nojekyll index.html main.css favicon.png dist/
           ls -la dist/*
 
       - name: Minify files
