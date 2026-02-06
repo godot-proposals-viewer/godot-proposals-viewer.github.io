@@ -52,7 +52,7 @@
           <!-- Attract user attention if filter has been changed from the default (All proposals). -->
           <span :style="`font-weight: ${labelFilter === '' ? 400 : 700}`">Filter:</span>
           <select x-model="labelFilter">
-            <option value="">All proposals</option>
+            <option value="">Any labels</option>
             <option value="0" title="Proposals not related to Godot itself">Meta proposals</option>
             <option value="60" title="Proposals that are approved and can be implemented by anyone">Implementer wanted</option>
             <optgroup label="Topic">
@@ -102,6 +102,12 @@
               <option value="86">Web</option>
               <option value="87" title="Universal Windows Platform">UWP</option>
             </optgroup>
+          </select>
+          <select x-model="timeFilter">
+            <option value="" title="Show proposals created any time">All time</option>
+            <option value="60" title="Show proposals created up to 2 months back">Two months</option>
+            <option value="365" title="Show proposals created up to 1 year back">One year</option>
+            <option value="1100" title="Show proposals created up to 3 years back">3 years</option>
           </select>
           <select x-model="countFilter">
             <option value="" title="Show the first 200 only">Show 200</option>
@@ -234,6 +240,7 @@
           proposalsLoaded: false,
           // The GitHub issue label to filter the list of proposals.
           labelFilter: searchParams.get('filter') || '',
+          timeFilter: searchParams.get('timeFilter') || '',
           countFilter: searchParams.get('countFilter') || '',
           sort: searchParams.get('sort') || '',
           searchQuery: '',
@@ -256,6 +263,14 @@
               }
               return true;
             });
+
+            if (this.timeFilter !== '') {
+              // timeFilter is in days, date is in ms
+              let startTime = Date.now() - (parseInt(this.timeFilter) * 3600000 * 24);
+              filteredProposals = filteredProposals.filter((proposal) => {
+                return new Date(proposal[KEY_CREATED_AT] * 1000) > startTime;
+              });
+            }
 
             if (this.sort === '') {
               filteredProposals = filteredProposals.sort(this.sortProposalsNewAndHot);
