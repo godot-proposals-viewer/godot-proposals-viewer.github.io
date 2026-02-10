@@ -5,9 +5,14 @@ on:
   pull_request:
   workflow_dispatch:
   schedule:
-    # Every day at midnight (UTC).
-    # This keeps the list of proposals fresh.
-    - cron: '0 0 * * *'
+    # At the time of writing, we get about 2-6 new proposals a day, while
+    # the cronjob takes around 5 minutes to run.
+    # To keep proposals fresh, try to fetch them in a reasonable timeframe.
+    # The entries are staggered to avoid round numbers where high load is expected.
+    - cron: '50 2 * * *'
+    - cron: '50 8 * * *'
+    - cron: '50 14 * * *'
+    - cron: '50 20 * * *'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages.
 permissions:
