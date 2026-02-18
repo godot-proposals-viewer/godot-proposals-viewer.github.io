@@ -131,6 +131,13 @@ a:visited:active {
   filter: brightness(82.5%);
 }
 
+select, input {
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0 4px 10px 4px;
+}
+
 code {
   background-color: hsla(0, 0%, 60%, 0.2);
   padding: 0.125rem;
