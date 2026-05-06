@@ -1,0 +1,30 @@
+name: Keepalive
+
+# GitHub disables scheduled workflows in repos with no activity for 60 days.
+# This workflow force-pushes a single orphan commit to the `keepalive` branch
+# on the 1st of every month so the daily proposal-fetching cron stays enabled.
+on:
+  schedule:
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  keepalive:
+    if: github.repository_owner == 'godot-proposals-viewer'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Force-push empty commit to keepalive branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          git init -q keepalive
+          cd keepalive
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -q --orphan keepalive
+          git commit -q --allow-empty -m "Keepalive $(date -u +%Y-%m-%d)"
+          git push -q --force "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" keepalive
