@@ -19,14 +19,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import datetime
 import json
 import os
+import time
 from typing import Any, List
 
 import dateutil.parser as dateutil_parser
+from aiohttp.client_exceptions import ClientResponseError
 from dotenv import load_dotenv
 from gql import Client, gql
 from gql.transport.aiohttp import AIOHTTPTransport
+from gql.transport.exceptions import TransportServerError
 from typing_extensions import Final
 
 
@@ -137,6 +141,10 @@ def get_label_code(label_name: str) -> int:
     return -1
 
 
+MAX_RETRIES = 5
+WAIT_TIME_GENERIC_FLOOR = 60
+
+
 def main() -> None:
     # Change to the directory where the script is located,
     # so that the script can be run from any location.
@@ -158,8 +166,10 @@ def main() -> None:
     # We'll set the number of pages to a "finite" number once we make a request.
     num_queries = 10000
 
+    retries_left = MAX_RETRIES
+    wait_time_generic_s = WAIT_TIME_GENERIC_FLOOR
+
     # Get all proposals.
-    # TODO: Retry requests a few times if they fail.
     for i in range(num_queries):
         print(f"Requesting batch of proposals {i + 1}...")
         query = gql(
@@ -200,39 +210,79 @@ query ($cursor: String) {
 
         # We're querying the first page, so we don't need to supply a valid cursor.
         # GQL will take care of not submitting the variable if it's set to `None`.
-        result = client.execute(query, variable_values={"cursor": cursor})
-        if result["repository"]["issues"]["edges"] != []:
-            for edge in result["repository"]["issues"]["edges"]:
-                proposal = edge["node"]
-                up_reactions = 0
-                down_reactions = 0
-                for reaction_group in proposal["reactionGroups"]:
-                    if reaction_group["content"] == "THUMBS_UP":
-                        up_reactions += reaction_group["users"]["totalCount"]
-                    if reaction_group["content"] == "THUMBS_DOWN" or reaction_group["content"] == "CONFUSED":
-                        down_reactions += reaction_group["users"]["totalCount"]
+        try:
+            result = client.execute(query, variable_values={"cursor": cursor})
+        except TransportServerError as error:
+            if not isinstance(error.__cause__, ClientResponseError):
+                print("Unknown error cause. Exiting.")
+                exit(1)
 
-                # Only include fields we use on the frontend.
-                # Use an optimized array form to avoid including dozens of thousands
-                # of string keys in the JSON.
-                # Store the creation date as an UNIX timestamp integer as it's smaller than an ISO 8601 string.
-                proposals.append(
-                    [
-                        proposal["number"],
-                        proposal["title"],
-                        int(dateutil_parser.parse(proposal["createdAt"]).strftime("%s")),
-                        proposal["author"]["login"] if proposal["author"] is not None else "ghost",
-                        proposal["comments"]["totalCount"],
-                        [get_label_code(label["name"]) for label in proposal["labels"]["nodes"]],
-                        [up_reactions, down_reactions],
-                    ]
-                )
+            cause: ClientResponseError = error.__cause__
+            print(cause.headers)
 
-            # Get the cursor value of the last returned item, as we need it for subsequent requests (pagination).
-            cursor = result["repository"]["issues"]["edges"][0]["cursor"]
-        else:
+            if retries_left <= 0:
+                print("Error getting proposals, and out of retries. Exiting.")
+                exit(1)
+
+            retries_left -= 1
+
+            if "retry-after" in cause.headers:
+                try:
+                    retry_after = cause.headers["retry-after"]
+                    time.sleep(int(retry_after))
+                    continue
+                except ValueError:
+                    print("Couldn't convert 'retry-after' to int")
+            if "x-ratelimit-remaining" in cause.headers and cause.headers["x-ratelimit-remaining"] == "0":
+                try:
+                    wait_until = datetime.datetime.fromtimestamp(int(cause.headers["x-ratelimit-reset"]))
+                    if wait_until < datetime.datetime.now():
+                        continue  # Can continue immediately
+                    time.sleep((wait_until - datetime.datetime.now()).total_seconds())
+                    continue
+                except ValueError:
+                    print("Couldn't convert 'retry-after' to int")
+
+            time.sleep(wait_time_generic_s)
+            wait_time_generic_s *= 2
+            continue
+
+        if result["repository"]["issues"]["edges"] == []:
             print("No more proposals to fetch.")
             break
+
+        # Successful response; reset retries.
+        retries_left = MAX_RETRIES
+        wait_time_generic_s = WAIT_TIME_GENERIC_FLOOR
+
+        for edge in result["repository"]["issues"]["edges"]:
+            proposal = edge["node"]
+            up_reactions = 0
+            down_reactions = 0
+            for reaction_group in proposal["reactionGroups"]:
+                if reaction_group["content"] == "THUMBS_UP":
+                    up_reactions += reaction_group["users"]["totalCount"]
+                if reaction_group["content"] == "THUMBS_DOWN" or reaction_group["content"] == "CONFUSED":
+                    down_reactions += reaction_group["users"]["totalCount"]
+
+            # Only include fields we use on the frontend.
+            # Use an optimized array form to avoid including dozens of thousands
+            # of string keys in the JSON.
+            # Store the creation date as an UNIX timestamp integer as it's smaller than an ISO 8601 string.
+            proposals.append(
+                [
+                    proposal["number"],
+                    proposal["title"],
+                    int(dateutil_parser.parse(proposal["createdAt"]).strftime("%s")),
+                    proposal["author"]["login"] if proposal["author"] is not None else "ghost",
+                    proposal["comments"]["totalCount"],
+                    [get_label_code(label["name"]) for label in proposal["labels"]["nodes"]],
+                    [up_reactions, down_reactions],
+                ]
+            )
+
+        # Get the cursor value of the last returned item, as we need it for subsequent requests (pagination).
+        cursor = result["repository"]["issues"]["edges"][0]["cursor"]
 
     print("Saving proposals.json...")
 
